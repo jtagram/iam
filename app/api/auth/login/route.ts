@@ -1,9 +1,13 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { AUTH_COOKIE_NAME } from "@/app/lib/auth-cookie";
+import { requireEnv } from "@/app/lib/require-env";
 
-const IAM_API_URL = process.env.IAM_API_URL ?? "http://localhost:3000";
-const IAM_APPLICATION_NAME = process.env.IAM_APPLICATION_NAME ?? "iam";
+const IAM_API_URL = requireEnv("IAM_API_URL", process.env.IAM_API_URL);
+const IAM_APPLICATION_NAME = requireEnv(
+  "IAM_APPLICATION_NAME",
+  process.env.IAM_APPLICATION_NAME,
+);
 
 interface LoginRequestBody {
   email?: string;
