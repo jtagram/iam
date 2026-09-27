@@ -3,8 +3,6 @@ import { cookies } from "next/headers";
 import { AUTH_COOKIE_NAME } from "@/app/lib/auth-cookie";
 import { requireEnv } from "@/app/lib/require-env";
 
-const IAM_API_URL = requireEnv("IAM_API_URL", process.env.IAM_API_URL);
-
 interface CreateInternalUserRequestBody {
   name?: string;
   lastname?: string;
@@ -24,6 +22,7 @@ function extractErrorMessage(body: IamErrorBody, fallback: string): string {
 }
 
 export async function GET() {
+  const IAM_API_URL = requireEnv("IAM_API_URL", process.env.IAM_API_URL);
   const cookieStore = await cookies();
   const token = cookieStore.get(AUTH_COOKIE_NAME)?.value;
 
@@ -59,6 +58,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const IAM_API_URL = requireEnv("IAM_API_URL", process.env.IAM_API_URL);
   const cookieStore = await cookies();
   const token = cookieStore.get(AUTH_COOKIE_NAME)?.value;
 
