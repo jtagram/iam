@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { ListGroup } from "react-bootstrap";
 import { getApplications } from "@/app/features/application/application.service";
 import { getRolesByApplication } from "@/app/features/role/role.service";
 
@@ -69,18 +70,13 @@ export function ApplicationRolesList() {
       )}
 
       {!error && rows !== null && rows.length > 0 && (
-        <div className="flex flex-col gap-3">
+        <ListGroup>
           {rows.map((row) => (
-            <input
-              key={row.applicationId}
-              type="text"
-              disabled
-              readOnly
-              value={row.summary}
-              className="w-full rounded border border-black/[.15] bg-zinc-100 px-3 py-2 text-black disabled:opacity-100 dark:border-white/[.2] dark:bg-zinc-900 dark:text-zinc-50"
-            />
+            <ListGroup.Item key={row.applicationId}>
+              {row.summary}
+            </ListGroup.Item>
           ))}
-        </div>
+        </ListGroup>
       )}
     </div>
   );

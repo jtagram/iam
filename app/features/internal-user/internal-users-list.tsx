@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { ListGroup } from "react-bootstrap";
 import {
   getAssignedApplicationsForInternalUser,
   getInternalUsers,
@@ -70,44 +71,38 @@ export function InternalUsersList() {
       )}
 
       {!error && rows !== null && rows.length > 0 && (
-        <ul className="flex flex-col gap-4">
+        <ListGroup>
           {rows.map(({ internalUser, assignedApplications }) => (
-            <li
-              key={internalUser.id}
-              className="rounded border border-black/[.08] p-4 dark:border-white/[.145]"
-            >
-              <p className="font-medium text-black dark:text-zinc-50">
+            <ListGroup.Item key={internalUser.id}>
+              <div className="fw-medium">
                 {internalUser.name} {internalUser.lastname}
-              </p>
-              <p className="mb-3 text-sm text-zinc-600 dark:text-zinc-400">
+              </div>
+              <div className="text-muted small mb-2">
                 {internalUser.email}
-              </p>
+              </div>
 
               {assignedApplications.length === 0 && (
-                <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                <div className="text-muted small">
                   Sin aplicaciones asignadas.
-                </p>
+                </div>
               )}
 
               {assignedApplications.length > 0 && (
-                <div className="flex flex-col gap-2">
+                <ListGroup variant="flush">
                   {assignedApplications.map((application) => (
-                    <input
+                    <ListGroup.Item
                       key={application.applicationId}
-                      type="text"
-                      disabled
-                      readOnly
-                      value={`${application.applicationName}:${application.roles
-                        .map((role) => role.name)
-                        .join(",")}`}
-                      className="w-full rounded border border-black/[.15] bg-zinc-100 px-3 py-2 text-black disabled:opacity-100 dark:border-white/[.2] dark:bg-zinc-900 dark:text-zinc-50"
-                    />
+                      className="px-0"
+                    >
+                      {application.applicationName}:{" "}
+                      {application.roles.map((role) => role.name).join(", ")}
+                    </ListGroup.Item>
                   ))}
-                </div>
+                </ListGroup>
               )}
-            </li>
+            </ListGroup.Item>
           ))}
-        </ul>
+        </ListGroup>
       )}
     </div>
   );

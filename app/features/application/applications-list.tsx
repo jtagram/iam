@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { ListGroup } from "react-bootstrap";
 import { getApplications } from "@/app/features/application/application.service";
 import type { Application } from "@/app/features/application/application.dto";
 
@@ -52,21 +53,16 @@ export function ApplicationsList() {
       )}
 
       {!error && applications !== null && applications.length > 0 && (
-        <ul className="flex flex-col gap-3">
+        <ListGroup>
           {applications.map((application) => (
-            <li
-              key={application.id}
-              className="rounded border border-black/[.08] p-4 dark:border-white/[.145]"
-            >
-              <p className="font-medium text-black dark:text-zinc-50">
-                {application.name}
-              </p>
-              <p className="text-sm text-zinc-600 dark:text-zinc-400">
+            <ListGroup.Item key={application.id}>
+              <div className="fw-medium">{application.name}</div>
+              <div className="text-muted small">
                 {application.description}
-              </p>
-            </li>
+              </div>
+            </ListGroup.Item>
           ))}
-        </ul>
+        </ListGroup>
       )}
     </div>
   );
