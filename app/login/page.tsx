@@ -84,7 +84,12 @@ export default function LoginPage() {
               </Alert>
             )}
 
-            <Button type="submit" disabled={isSubmitting} className="w-100">
+            <Button
+              type="submit"
+              variant="dark"
+              disabled={isSubmitting}
+              className="w-100"
+            >
               {isSubmitting ? "Ingresando…" : "Ingresar"}
             </Button>
           </Form>
