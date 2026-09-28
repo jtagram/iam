@@ -1,45 +1,15 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
-
-interface AppUser {
-  id: number;
-  clienteId: string;
-  name: string;
-  description: string;
-}
-
-interface Application {
-  id: number;
-  name: string;
-  description: string;
-}
-
-interface Role {
-  id: number;
-  applicationId: number;
-  name: string;
-  description: string;
-}
-
-interface AppUsersResponse {
-  data?: AppUser[];
-  message?: string;
-}
-
-interface ApplicationsResponse {
-  data?: Application[];
-  message?: string;
-}
-
-interface RolesResponse {
-  data?: Role[];
-  message?: string;
-}
-
-interface AssignRoleResponse {
-  message?: string;
-}
+import { getApplications } from "@/app/features/application/application.service";
+import type { Application } from "@/app/features/application/application.dto";
+import { getRolesByApplication } from "@/app/features/role/role.service";
+import type { Role } from "@/app/features/role/role.dto";
+import {
+  assignRoleToAppUser,
+  getAppUsers,
+} from "@/app/features/app-user/app-user.service";
+import type { AppUser } from "@/app/features/app-user/app-user.dto";
 
 export function AssignRoleToAppUserForm() {
   const [appUsers, setAppUsers] = useState<AppUser[] | null>(null);
@@ -60,63 +30,25 @@ export function AssignRoleToAppUserForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    let cancelled = false;
+    const controller = new AbortController();
 
     async function loadOptions() {
       try {
-        const [appUsersResponse, applicationsResponse] = await Promise.all([
-          fetch("/api/apps-users"),
-          fetch("/api/applications"),
+        const [loadedAppUsers, loadedApplications] = await Promise.all([
+          getAppUsers(controller.signal),
+          getApplications(controller.signal),
         ]);
-
-        const appUsersData = (await appUsersResponse
-          .json()
-          .catch(() => null)) as AppUsersResponse | null;
-        const applicationsData = (await applicationsResponse
-          .json()
-          .catch(() => null)) as ApplicationsResponse | null;
-
-        if (cancelled) return;
-
-        if (!appUsersResponse.ok) {
-          setLoadError(
-            appUsersData?.message ??
-              "No se pudieron obtener los usuarios de aplicación.",
-          );
-          return;
-        }
-
-        if (!applicationsResponse.ok) {
-          setLoadError(
-            applicationsData?.message ??
-              "No se pudieron obtener las aplicaciones.",
-          );
-          return;
-        }
-
-        const loadedAppUsers = appUsersData?.data ?? [];
-        const loadedApplications = applicationsData?.data ?? [];
 
         setAppUsers(loadedAppUsers);
         setApplications(loadedApplications);
-
-        if (loadedAppUsers.length > 0) {
-          setAppUserId(String(loadedAppUsers[0].id));
-        }
-        if (loadedApplications.length > 0) {
-          setApplicationId(String(loadedApplications[0].id));
-        }
-      } catch {
-        if (!cancelled) {
-          setLoadError("No se pudo conectar con el servidor.");
-        }
+      } catch (err) {
+        if (controller.signal.aborted) return;
+        setLoadError((err as Error).message);
       }
     }
 
     loadOptions();
-    return () => {
-      cancelled = true;
-    };
+    return () => controller.abort();
   }, []);
 
   useEffect(() => {
@@ -124,7 +56,7 @@ export function AssignRoleToAppUserForm() {
       return;
     }
 
-    let cancelled = false;
+    const controller = new AbortController();
 
     async function loadRoles() {
       setRoles(null);
@@ -132,36 +64,19 @@ export function AssignRoleToAppUserForm() {
       setRolesError(null);
 
       try {
-        const response = await fetch(
-          `/api/roles?applicationId=${applicationId}`,
+        const loaded = await getRolesByApplication(
+          applicationId,
+          controller.signal,
         );
-        const data = (await response
-          .json()
-          .catch(() => null)) as RolesResponse | null;
-
-        if (cancelled) return;
-
-        if (!response.ok) {
-          setRolesError(data?.message ?? "No se pudieron obtener los roles.");
-          return;
-        }
-
-        const loadedRoles = data?.data ?? [];
-        setRoles(loadedRoles);
-        if (loadedRoles.length > 0) {
-          setRoleId(String(loadedRoles[0].id));
-        }
-      } catch {
-        if (!cancelled) {
-          setRolesError("No se pudo conectar con el servidor.");
-        }
+        setRoles(loaded);
+      } catch (err) {
+        if (controller.signal.aborted) return;
+        setRolesError((err as Error).message);
       }
     }
 
     loadRoles();
-    return () => {
-      cancelled = true;
-    };
+    return () => controller.abort();
   }, [applicationId]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -171,24 +86,11 @@ export function AssignRoleToAppUserForm() {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch(`/api/apps-users/${appUserId}/roles`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ roleId: Number(roleId) }),
-      });
-
-      const data = (await response
-        .json()
-        .catch(() => null)) as AssignRoleResponse | null;
-
-      if (!response.ok) {
-        setError(data?.message ?? "No se pudo asignar el rol.");
-        return;
-      }
+      await assignRoleToAppUser(appUserId, { roleId: Number(roleId) });
 
       setSuccess("Rol asignado correctamente.");
-    } catch {
-      setError("No se pudo conectar con el servidor.");
+    } catch (err) {
+      setError((err as Error).message);
     } finally {
       setIsSubmitting(false);
     }
@@ -243,6 +145,9 @@ export function AssignRoleToAppUserForm() {
               onChange={(event) => setAppUserId(event.target.value)}
               className="w-full rounded border border-black/[.15] bg-white px-3 py-2 text-black focus:outline-none focus:ring-2 focus:ring-black/20 dark:border-white/[.2] dark:bg-black dark:text-zinc-50"
             >
+              <option value="" disabled>
+                Seleccionar
+              </option>
               {appUsers!.map((appUser) => (
                 <option key={appUser.id} value={appUser.id}>
                   {appUser.name}
@@ -266,6 +171,9 @@ export function AssignRoleToAppUserForm() {
               onChange={(event) => setApplicationId(event.target.value)}
               className="w-full rounded border border-black/[.15] bg-white px-3 py-2 text-black focus:outline-none focus:ring-2 focus:ring-black/20 dark:border-white/[.2] dark:bg-black dark:text-zinc-50"
             >
+              <option value="" disabled>
+                Seleccionar
+              </option>
               {applications!.map((application) => (
                 <option key={application.id} value={application.id}>
                   {application.name}
@@ -291,7 +199,13 @@ export function AssignRoleToAppUserForm() {
               </p>
             )}
 
-            {!rolesError && roles === null && (
+            {!rolesError && !applicationId && (
+              <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                Seleccioná una aplicación primero.
+              </p>
+            )}
+
+            {!rolesError && applicationId && roles === null && (
               <p className="text-sm text-zinc-500 dark:text-zinc-400">
                 Cargando…
               </p>
@@ -312,6 +226,9 @@ export function AssignRoleToAppUserForm() {
                 onChange={(event) => setRoleId(event.target.value)}
                 className="w-full rounded border border-black/[.15] bg-white px-3 py-2 text-black focus:outline-none focus:ring-2 focus:ring-black/20 dark:border-white/[.2] dark:bg-black dark:text-zinc-50"
               >
+                <option value="" disabled>
+                  Seleccionar
+                </option>
                 {roles.map((role) => (
                   <option key={role.id} value={role.id}>
                     {role.name}
@@ -341,7 +258,7 @@ export function AssignRoleToAppUserForm() {
 
           <button
             type="submit"
-            disabled={isSubmitting || !roleId}
+            disabled={isSubmitting || !appUserId || !applicationId || !roleId}
             className="rounded-full bg-foreground px-5 py-2.5 text-background transition-colors hover:bg-[#383838] disabled:opacity-60 dark:hover:bg-[#ccc]"
           >
             {isSubmitting ? "Asignando…" : "Asignar"}

@@ -1,19 +1,8 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-
-interface CreatedAppUser {
-  id: number;
-  clienteId: string;
-  clienteSecret: string;
-  name: string;
-  description: string;
-}
-
-interface CreateAppUserResponse {
-  data?: CreatedAppUser;
-  message?: string;
-}
+import { createAppUser } from "@/app/features/app-user/app-user.service";
+import type { CreatedAppUser } from "@/app/features/app-user/app-user.dto";
 
 export function CreateAppUserForm() {
   const [name, setName] = useState("");
@@ -29,28 +18,12 @@ export function CreateAppUserForm() {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch("/api/apps-users", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, description }),
-      });
-
-      const data = (await response
-        .json()
-        .catch(() => null)) as CreateAppUserResponse | null;
-
-      if (!response.ok || !data?.data) {
-        setError(
-          data?.message ?? "No se pudo crear el usuario de aplicación.",
-        );
-        return;
-      }
-
-      setCreated(data.data);
+      const createdAppUser = await createAppUser({ name, description });
+      setCreated(createdAppUser);
       setName("");
       setDescription("");
-    } catch {
-      setError("No se pudo conectar con el servidor.");
+    } catch (err) {
+      setError((err as Error).message);
     } finally {
       setIsSubmitting(false);
     }

@@ -1,33 +1,13 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
-
-interface AppUser {
-  id: number;
-  clienteId: string;
-  name: string;
-  description: string;
-}
-
-interface Application {
-  id: number;
-  name: string;
-  description: string;
-}
-
-interface AppUsersResponse {
-  data?: AppUser[];
-  message?: string;
-}
-
-interface ApplicationsResponse {
-  data?: Application[];
-  message?: string;
-}
-
-interface AssignApplicationResponse {
-  message?: string;
-}
+import { getApplications } from "@/app/features/application/application.service";
+import type { Application } from "@/app/features/application/application.dto";
+import {
+  assignApplicationToAppUser,
+  getAppUsers,
+} from "@/app/features/app-user/app-user.service";
+import type { AppUser } from "@/app/features/app-user/app-user.dto";
 
 export function AssignApplicationForm() {
   const [appUsers, setAppUsers] = useState<AppUser[] | null>(null);
@@ -43,63 +23,25 @@ export function AssignApplicationForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    let cancelled = false;
+    const controller = new AbortController();
 
     async function loadOptions() {
       try {
-        const [appUsersResponse, applicationsResponse] = await Promise.all([
-          fetch("/api/apps-users"),
-          fetch("/api/applications"),
+        const [loadedAppUsers, loadedApplications] = await Promise.all([
+          getAppUsers(controller.signal),
+          getApplications(controller.signal),
         ]);
-
-        const appUsersData = (await appUsersResponse
-          .json()
-          .catch(() => null)) as AppUsersResponse | null;
-        const applicationsData = (await applicationsResponse
-          .json()
-          .catch(() => null)) as ApplicationsResponse | null;
-
-        if (cancelled) return;
-
-        if (!appUsersResponse.ok) {
-          setLoadError(
-            appUsersData?.message ??
-              "No se pudieron obtener los usuarios de aplicación.",
-          );
-          return;
-        }
-
-        if (!applicationsResponse.ok) {
-          setLoadError(
-            applicationsData?.message ??
-              "No se pudieron obtener las aplicaciones.",
-          );
-          return;
-        }
-
-        const loadedAppUsers = appUsersData?.data ?? [];
-        const loadedApplications = applicationsData?.data ?? [];
 
         setAppUsers(loadedAppUsers);
         setApplications(loadedApplications);
-
-        if (loadedAppUsers.length > 0) {
-          setAppUserId(String(loadedAppUsers[0].id));
-        }
-        if (loadedApplications.length > 0) {
-          setApplicationId(String(loadedApplications[0].id));
-        }
-      } catch {
-        if (!cancelled) {
-          setLoadError("No se pudo conectar con el servidor.");
-        }
+      } catch (err) {
+        if (controller.signal.aborted) return;
+        setLoadError((err as Error).message);
       }
     }
 
     loadOptions();
-    return () => {
-      cancelled = true;
-    };
+    return () => controller.abort();
   }, []);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -109,27 +51,13 @@ export function AssignApplicationForm() {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch(
-        `/api/apps-users/${appUserId}/applications`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ applicationId: Number(applicationId) }),
-        },
-      );
-
-      const data = (await response
-        .json()
-        .catch(() => null)) as AssignApplicationResponse | null;
-
-      if (!response.ok) {
-        setError(data?.message ?? "No se pudo asignar la aplicación.");
-        return;
-      }
+      await assignApplicationToAppUser(appUserId, {
+        applicationId: Number(applicationId),
+      });
 
       setSuccess("Aplicación asignada correctamente.");
-    } catch {
-      setError("No se pudo conectar con el servidor.");
+    } catch (err) {
+      setError((err as Error).message);
     } finally {
       setIsSubmitting(false);
     }
@@ -184,6 +112,9 @@ export function AssignApplicationForm() {
               onChange={(event) => setAppUserId(event.target.value)}
               className="w-full rounded border border-black/[.15] bg-white px-3 py-2 text-black focus:outline-none focus:ring-2 focus:ring-black/20 dark:border-white/[.2] dark:bg-black dark:text-zinc-50"
             >
+              <option value="" disabled>
+                Seleccionar
+              </option>
               {appUsers!.map((appUser) => (
                 <option key={appUser.id} value={appUser.id}>
                   {appUser.name}
@@ -207,6 +138,9 @@ export function AssignApplicationForm() {
               onChange={(event) => setApplicationId(event.target.value)}
               className="w-full rounded border border-black/[.15] bg-white px-3 py-2 text-black focus:outline-none focus:ring-2 focus:ring-black/20 dark:border-white/[.2] dark:bg-black dark:text-zinc-50"
             >
+              <option value="" disabled>
+                Seleccionar
+              </option>
               {applications!.map((application) => (
                 <option key={application.id} value={application.id}>
                   {application.name}
@@ -235,7 +169,7 @@ export function AssignApplicationForm() {
 
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isSubmitting || !appUserId || !applicationId}
             className="rounded-full bg-foreground px-5 py-2.5 text-background transition-colors hover:bg-[#383838] disabled:opacity-60 dark:hover:bg-[#ccc]"
           >
             {isSubmitting ? "Asignando…" : "Asignar"}

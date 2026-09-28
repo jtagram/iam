@@ -1,30 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
-interface AppUser {
-  id: number;
-  clienteId: string;
-  name: string;
-  description: string;
-}
-
-interface AssignedApplication {
-  applicationId: number;
-  applicationName: string;
-  applicationDescription: string;
-  roles: Array<{ id: number; name: string; description: string }>;
-}
-
-interface AppUsersResponse {
-  data?: AppUser[];
-  message?: string;
-}
-
-interface AssignedApplicationsResponse {
-  data?: AssignedApplication[];
-  message?: string;
-}
+import {
+  getAppUsers,
+  getAssignedApplicationsForAppUser,
+} from "@/app/features/app-user/app-user.service";
+import type {
+  AppUser,
+  AssignedApplication,
+} from "@/app/features/app-user/app-user.dto";
 
 interface AppUserRow {
   appUser: AppUser;
@@ -36,68 +20,31 @@ export function AppUsersList() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
+    const controller = new AbortController();
 
     async function loadAppUsers() {
       try {
-        const appUsersResponse = await fetch("/api/apps-users");
-        const appUsersData = (await appUsersResponse
-          .json()
-          .catch(() => null)) as AppUsersResponse | null;
-
-        if (cancelled) return;
-
-        if (!appUsersResponse.ok) {
-          setError(
-            appUsersData?.message ??
-              "No se pudieron obtener los usuarios de aplicación.",
-          );
-          return;
-        }
-
-        const appUsers = appUsersData?.data ?? [];
+        const appUsers = await getAppUsers(controller.signal);
 
         const loadedRows = await Promise.all(
-          appUsers.map(async (appUser) => {
-            const assignedResponse = await fetch(
-              `/api/apps-users/${appUser.id}/applications`,
-            );
-            const assignedData = (await assignedResponse
-              .json()
-              .catch(() => null)) as AssignedApplicationsResponse | null;
-
-            if (!assignedResponse.ok) {
-              throw new Error(
-                assignedData?.message ??
-                  "No se pudieron obtener las aplicaciones asignadas.",
-              );
-            }
-
-            return {
-              appUser,
-              assignedApplications: assignedData?.data ?? [],
-            };
-          }),
+          appUsers.map(async (appUser) => ({
+            appUser,
+            assignedApplications: await getAssignedApplicationsForAppUser(
+              appUser.id,
+              controller.signal,
+            ),
+          })),
         );
 
-        if (!cancelled) {
-          setRows(loadedRows);
-        }
+        setRows(loadedRows);
       } catch (err) {
-        if (!cancelled) {
-          setError(
-            err instanceof Error
-              ? err.message
-              : "No se pudo conectar con el servidor.",
-          );
-        }
+        if (controller.signal.aborted) return;
+        setError((err as Error).message);
       }
     }
 
     loadAppUsers();
-    return () => {
-      cancelled = true;
-    };
+    return () => controller.abort();
   }, []);
 
   return (
