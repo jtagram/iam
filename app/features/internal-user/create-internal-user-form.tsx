@@ -1,162 +1,139 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { Alert, Button, Form } from "react-bootstrap";
 import { createInternalUser } from "@/app/features/internal-user/internal-user.service";
 
-export function CreateInternalUserForm() {
-  const [name, setName] = useState("");
-  const [lastname, setLastname] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+interface CreateInternalUserFormValues {
+  name: string;
+  lastname: string;
+  email: string;
+  password: string;
+}
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setError(null);
+export function CreateInternalUserForm() {
+  const [success, setSuccess] = useState<string | null>(null);
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setError,
+    clearErrors,
+    formState: { errors, isSubmitting, isValid },
+  } = useForm<CreateInternalUserFormValues>({
+    mode: "onChange",
+    defaultValues: { name: "", lastname: "", email: "", password: "" },
+  });
+
+  const onSubmit = handleSubmit(async (data) => {
+    clearErrors("root");
     setSuccess(null);
-    setIsSubmitting(true);
 
     try {
-      const created = await createInternalUser({
-        name,
-        lastname,
-        email,
-        password,
-      });
+      const created = await createInternalUser(data);
 
       setSuccess(
-        `Usuario interno "${created.name ?? name} ${
-          created.lastname ?? lastname
+        `Usuario interno "${created.name ?? data.name} ${
+          created.lastname ?? data.lastname
         }" creado correctamente.`,
       );
-      setName("");
-      setLastname("");
-      setEmail("");
-      setPassword("");
+      reset();
     } catch (err) {
-      setError((err as Error).message);
-    } finally {
-      setIsSubmitting(false);
+      setError("root", { message: (err as Error).message });
     }
-  }
+  });
 
   return (
-    <div className="max-w-lg">
-      <h2 className="mb-6 text-xl font-semibold text-black dark:text-zinc-50">
-        Crear usuario interno
-      </h2>
+    <div style={{ maxWidth: 480 }}>
+      <h2 className="h4 mb-4">Crear usuario interno</h2>
 
-      <form onSubmit={handleSubmit}>
-        <div className="mb-4">
-          <label
-            htmlFor="internalUserName"
-            className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
-          >
-            Nombre
-          </label>
-          <input
-            id="internalUserName"
-            name="internalUserName"
+      <Form onSubmit={onSubmit}>
+        <Form.Group className="mb-3" controlId="createInternalUserName">
+          <Form.Label>Nombre</Form.Label>
+          <Form.Control
             type="text"
-            required
-            maxLength={15}
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            className="w-full rounded border border-black/[.15] bg-white px-3 py-2 text-black focus:outline-none focus:ring-2 focus:ring-black/20 dark:border-white/[.2] dark:bg-black dark:text-zinc-50"
+            {...register("name", {
+              required: "Este campo es obligatorio.",
+              maxLength: { value: 15, message: "Máximo 15 caracteres." },
+            })}
           />
-        </div>
+          {errors.name && (
+            <Form.Text className="text-danger">
+              {errors.name.message}
+            </Form.Text>
+          )}
+        </Form.Group>
 
-        <div className="mb-4">
-          <label
-            htmlFor="internalUserLastname"
-            className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
-          >
-            Apellido
-          </label>
-          <input
-            id="internalUserLastname"
-            name="internalUserLastname"
+        <Form.Group className="mb-3" controlId="createInternalUserLastname">
+          <Form.Label>Apellido</Form.Label>
+          <Form.Control
             type="text"
-            required
-            maxLength={15}
-            value={lastname}
-            onChange={(event) => setLastname(event.target.value)}
-            className="w-full rounded border border-black/[.15] bg-white px-3 py-2 text-black focus:outline-none focus:ring-2 focus:ring-black/20 dark:border-white/[.2] dark:bg-black dark:text-zinc-50"
+            {...register("lastname", {
+              required: "Este campo es obligatorio.",
+              maxLength: { value: 15, message: "Máximo 15 caracteres." },
+            })}
           />
-        </div>
+          {errors.lastname && (
+            <Form.Text className="text-danger">
+              {errors.lastname.message}
+            </Form.Text>
+          )}
+        </Form.Group>
 
-        <div className="mb-4">
-          <label
-            htmlFor="internalUserEmail"
-            className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
-          >
-            Correo electrónico
-          </label>
-          <input
-            id="internalUserEmail"
-            name="internalUserEmail"
+        <Form.Group className="mb-3" controlId="createInternalUserEmail">
+          <Form.Label>Correo electrónico</Form.Label>
+          <Form.Control
             type="email"
-            required
-            maxLength={30}
             autoComplete="off"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            className="w-full rounded border border-black/[.15] bg-white px-3 py-2 text-black focus:outline-none focus:ring-2 focus:ring-black/20 dark:border-white/[.2] dark:bg-black dark:text-zinc-50"
+            {...register("email", {
+              required: "Este campo es obligatorio.",
+              maxLength: { value: 30, message: "Máximo 30 caracteres." },
+            })}
           />
-        </div>
+          {errors.email && (
+            <Form.Text className="text-danger">
+              {errors.email.message}
+            </Form.Text>
+          )}
+        </Form.Group>
 
-        <div className="mb-6">
-          <label
-            htmlFor="internalUserPassword"
-            className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
-          >
-            Contraseña
-          </label>
-          <input
-            id="internalUserPassword"
-            name="internalUserPassword"
+        <Form.Group className="mb-4" controlId="createInternalUserPassword">
+          <Form.Label>Contraseña</Form.Label>
+          <Form.Control
             type="password"
-            required
-            minLength={8}
-            maxLength={72}
             autoComplete="new-password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            className="w-full rounded border border-black/[.15] bg-white px-3 py-2 text-black focus:outline-none focus:ring-2 focus:ring-black/20 dark:border-white/[.2] dark:bg-black dark:text-zinc-50"
+            {...register("password", {
+              required: "Este campo es obligatorio.",
+              minLength: {
+                value: 8,
+                message: "Debe tener al menos 8 caracteres.",
+              },
+              maxLength: {
+                value: 72,
+                message: "No puede superar los 72 caracteres.",
+              },
+            })}
           />
-          <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-            Entre 8 y 72 caracteres.
-          </p>
-        </div>
+          {errors.password ? (
+            <Form.Text className="text-danger">
+              {errors.password.message}
+            </Form.Text>
+          ) : (
+            <Form.Text className="text-muted">
+              Entre 8 y 72 caracteres.
+            </Form.Text>
+          )}
+        </Form.Group>
 
-        {error && (
-          <p
-            className="mb-4 text-sm text-red-600 dark:text-red-400"
-            role="alert"
-          >
-            {error}
-          </p>
-        )}
+        {errors.root && <Alert variant="danger">{errors.root.message}</Alert>}
+        {success && <Alert variant="success">{success}</Alert>}
 
-        {success && (
-          <p
-            className="mb-4 text-sm text-green-600 dark:text-green-400"
-            role="status"
-          >
-            {success}
-          </p>
-        )}
-
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="rounded-full bg-foreground px-5 py-2.5 text-background transition-colors hover:bg-[#383838] disabled:opacity-60 dark:hover:bg-[#ccc]"
-        >
+        <Button type="submit" disabled={isSubmitting || !isValid}>
           {isSubmitting ? "Creando…" : "Crear"}
-        </button>
-      </form>
+        </Button>
+      </Form>
     </div>
   );
 }

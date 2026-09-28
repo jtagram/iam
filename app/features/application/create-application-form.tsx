@@ -1,113 +1,99 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { Alert, Button, Form } from "react-bootstrap";
 import { createApplication } from "@/app/features/application/application.service";
 
-export function CreateApplicationForm() {
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+interface CreateApplicationFormValues {
+  name: string;
+  description: string;
+}
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setError(null);
+export function CreateApplicationForm() {
+  const [success, setSuccess] = useState<string | null>(null);
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setError,
+    clearErrors,
+    formState: { errors, isSubmitting, isValid },
+  } = useForm<CreateApplicationFormValues>({
+    mode: "onChange",
+    defaultValues: { name: "", description: "" },
+  });
+
+  const onSubmit = handleSubmit(async (data) => {
+    clearErrors("root");
     setSuccess(null);
-    setIsSubmitting(true);
 
     try {
-      const created = await createApplication({ name, description });
+      const created = await createApplication(data);
 
       setSuccess(
-        `Aplicación "${created?.name ?? name}" creada correctamente.`,
+        `Aplicación "${created?.name ?? data.name}" creada correctamente.`,
       );
-      setName("");
-      setDescription("");
+      reset();
     } catch (err) {
-      setError((err as Error).message);
-    } finally {
-      setIsSubmitting(false);
+      setError("root", { message: (err as Error).message });
     }
-  }
+  });
 
   return (
-    <div className="max-w-lg">
-      <h2 className="mb-6 text-xl font-semibold text-black dark:text-zinc-50">
-        Crear aplicación
-      </h2>
+    <div style={{ maxWidth: 480 }}>
+      <h2 className="h4 mb-4">Crear aplicación</h2>
 
-      <form onSubmit={handleSubmit}>
-        <div className="mb-4">
-          <label
-            htmlFor="name"
-            className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
-          >
-            Nombre
-          </label>
-          <input
-            id="name"
-            name="name"
+      <Form onSubmit={onSubmit}>
+        <Form.Group className="mb-3" controlId="createApplicationName">
+          <Form.Label>Nombre</Form.Label>
+          <Form.Control
             type="text"
-            required
-            maxLength={15}
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            className="w-full rounded border border-black/[.15] bg-white px-3 py-2 text-black focus:outline-none focus:ring-2 focus:ring-black/20 dark:border-white/[.2] dark:bg-black dark:text-zinc-50"
+            {...register("name", {
+              required: "Este campo es obligatorio.",
+              maxLength: { value: 15, message: "Máximo 15 caracteres." },
+            })}
           />
-          <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-            Máximo 15 caracteres.
-          </p>
-        </div>
+          {errors.name ? (
+            <Form.Text className="text-danger">
+              {errors.name.message}
+            </Form.Text>
+          ) : (
+            <Form.Text className="text-muted">
+              Máximo 15 caracteres.
+            </Form.Text>
+          )}
+        </Form.Group>
 
-        <div className="mb-6">
-          <label
-            htmlFor="description"
-            className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
-          >
-            Descripción
-          </label>
-          <textarea
-            id="description"
-            name="description"
-            required
-            maxLength={200}
+        <Form.Group className="mb-4" controlId="createApplicationDescription">
+          <Form.Label>Descripción</Form.Label>
+          <Form.Control
+            as="textarea"
             rows={4}
-            value={description}
-            onChange={(event) => setDescription(event.target.value)}
-            className="w-full rounded border border-black/[.15] bg-white px-3 py-2 text-black focus:outline-none focus:ring-2 focus:ring-black/20 dark:border-white/[.2] dark:bg-black dark:text-zinc-50"
+            {...register("description", {
+              required: "Este campo es obligatorio.",
+              maxLength: { value: 200, message: "Máximo 200 caracteres." },
+            })}
           />
-          <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-            Máximo 200 caracteres.
-          </p>
-        </div>
+          {errors.description ? (
+            <Form.Text className="text-danger">
+              {errors.description.message}
+            </Form.Text>
+          ) : (
+            <Form.Text className="text-muted">
+              Máximo 200 caracteres.
+            </Form.Text>
+          )}
+        </Form.Group>
 
-        {error && (
-          <p
-            className="mb-4 text-sm text-red-600 dark:text-red-400"
-            role="alert"
-          >
-            {error}
-          </p>
-        )}
+        {errors.root && <Alert variant="danger">{errors.root.message}</Alert>}
+        {success && <Alert variant="success">{success}</Alert>}
 
-        {success && (
-          <p
-            className="mb-4 text-sm text-green-600 dark:text-green-400"
-            role="status"
-          >
-            {success}
-          </p>
-        )}
-
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="rounded-full bg-foreground px-5 py-2.5 text-background transition-colors hover:bg-[#383838] disabled:opacity-60 dark:hover:bg-[#ccc]"
-        >
+        <Button type="submit" disabled={isSubmitting || !isValid}>
           {isSubmitting ? "Creando…" : "Crear"}
-        </button>
-      </form>
+        </Button>
+      </Form>
     </div>
   );
 }

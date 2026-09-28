@@ -1,136 +1,118 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { Alert, Button, Form } from "react-bootstrap";
 import { createAppUser } from "@/app/features/app-user/app-user.service";
 import type { CreatedAppUser } from "@/app/features/app-user/app-user.dto";
 
-export function CreateAppUserForm() {
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [created, setCreated] = useState<CreatedAppUser | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+interface CreateAppUserFormValues {
+  name: string;
+  description: string;
+}
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setError(null);
+export function CreateAppUserForm() {
+  const [created, setCreated] = useState<CreatedAppUser | null>(null);
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setError,
+    clearErrors,
+    formState: { errors, isSubmitting, isValid },
+  } = useForm<CreateAppUserFormValues>({
+    mode: "onChange",
+    defaultValues: { name: "", description: "" },
+  });
+
+  const onSubmit = handleSubmit(async (data) => {
+    clearErrors("root");
     setCreated(null);
-    setIsSubmitting(true);
 
     try {
-      const createdAppUser = await createAppUser({ name, description });
+      const createdAppUser = await createAppUser(data);
       setCreated(createdAppUser);
-      setName("");
-      setDescription("");
+      reset();
     } catch (err) {
-      setError((err as Error).message);
-    } finally {
-      setIsSubmitting(false);
+      setError("root", { message: (err as Error).message });
     }
-  }
+  });
 
   return (
-    <div className="max-w-lg">
-      <h2 className="mb-6 text-xl font-semibold text-black dark:text-zinc-50">
-        Crear usuario de aplicación
-      </h2>
+    <div style={{ maxWidth: 480 }}>
+      <h2 className="h4 mb-4">Crear usuario de aplicación</h2>
 
-      <form onSubmit={handleSubmit}>
-        <div className="mb-4">
-          <label
-            htmlFor="appUserName"
-            className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
-          >
-            Nombre
-          </label>
-          <input
-            id="appUserName"
-            name="appUserName"
+      <Form onSubmit={onSubmit}>
+        <Form.Group className="mb-3" controlId="createAppUserName">
+          <Form.Label>Nombre</Form.Label>
+          <Form.Control
             type="text"
-            required
-            maxLength={20}
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            className="w-full rounded border border-black/[.15] bg-white px-3 py-2 text-black focus:outline-none focus:ring-2 focus:ring-black/20 dark:border-white/[.2] dark:bg-black dark:text-zinc-50"
+            {...register("name", {
+              required: "Este campo es obligatorio.",
+              maxLength: { value: 20, message: "Máximo 20 caracteres." },
+            })}
           />
-          <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-            Máximo 20 caracteres.
-          </p>
-        </div>
+          {errors.name ? (
+            <Form.Text className="text-danger">
+              {errors.name.message}
+            </Form.Text>
+          ) : (
+            <Form.Text className="text-muted">
+              Máximo 20 caracteres.
+            </Form.Text>
+          )}
+        </Form.Group>
 
-        <div className="mb-6">
-          <label
-            htmlFor="appUserDescription"
-            className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
-          >
-            Descripción
-          </label>
-          <textarea
-            id="appUserDescription"
-            name="appUserDescription"
-            required
-            maxLength={200}
+        <Form.Group className="mb-4" controlId="createAppUserDescription">
+          <Form.Label>Descripción</Form.Label>
+          <Form.Control
+            as="textarea"
             rows={4}
-            value={description}
-            onChange={(event) => setDescription(event.target.value)}
-            className="w-full rounded border border-black/[.15] bg-white px-3 py-2 text-black focus:outline-none focus:ring-2 focus:ring-black/20 dark:border-white/[.2] dark:bg-black dark:text-zinc-50"
+            {...register("description", {
+              required: "Este campo es obligatorio.",
+              maxLength: { value: 200, message: "Máximo 200 caracteres." },
+            })}
           />
-          <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-            Máximo 200 caracteres.
-          </p>
-        </div>
+          {errors.description ? (
+            <Form.Text className="text-danger">
+              {errors.description.message}
+            </Form.Text>
+          ) : (
+            <Form.Text className="text-muted">
+              Máximo 200 caracteres.
+            </Form.Text>
+          )}
+        </Form.Group>
 
-        {error && (
-          <p
-            className="mb-4 text-sm text-red-600 dark:text-red-400"
-            role="alert"
-          >
-            {error}
-          </p>
-        )}
+        {errors.root && <Alert variant="danger">{errors.root.message}</Alert>}
 
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="rounded-full bg-foreground px-5 py-2.5 text-background transition-colors hover:bg-[#383838] disabled:opacity-60 dark:hover:bg-[#ccc]"
-        >
+        <Button type="submit" disabled={isSubmitting || !isValid}>
           {isSubmitting ? "Creando…" : "Crear"}
-        </button>
-      </form>
+        </Button>
+      </Form>
 
       {created && (
-        <div className="mt-6 rounded border border-amber-400 bg-amber-50 p-4 dark:border-amber-600 dark:bg-amber-950">
-          <p className="mb-3 text-sm font-medium text-amber-800 dark:text-amber-200">
+        <Alert variant="warning" className="mt-4">
+          <p className="mb-3">
             Usuario &quot;{created.name}&quot; creado. Guardá el
             clienteSecret ahora — no se puede volver a obtener.
           </p>
 
-          <div className="mb-2">
-            <span className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">
-              clienteId
-            </span>
-            <input
-              type="text"
-              disabled
-              readOnly
-              value={created.clienteId}
-              className="w-full rounded border border-black/[.15] bg-white px-3 py-2 text-black disabled:opacity-100 dark:border-white/[.2] dark:bg-black dark:text-zinc-50"
-            />
-          </div>
+          <Form.Group className="mb-2">
+            <Form.Label className="small mb-1">clienteId</Form.Label>
+            <Form.Control type="text" readOnly value={created.clienteId} />
+          </Form.Group>
 
-          <div>
-            <span className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">
-              clienteSecret
-            </span>
-            <input
+          <Form.Group>
+            <Form.Label className="small mb-1">clienteSecret</Form.Label>
+            <Form.Control
               type="text"
-              disabled
               readOnly
               value={created.clienteSecret}
-              className="w-full rounded border border-black/[.15] bg-white px-3 py-2 text-black disabled:opacity-100 dark:border-white/[.2] dark:bg-black dark:text-zinc-50"
             />
-          </div>
-        </div>
+          </Form.Group>
+        </Alert>
       )}
     </div>
   );
