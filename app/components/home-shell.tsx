@@ -29,7 +29,7 @@ export function HomeShell() {
         style={{ width: 260, overflowY: "auto" }}
       >
         {NAV_ITEMS.map((item) => (
-          <Nav.Item key={item.id} className="mb-1 text-nowrap">
+          <Nav.Item key={item.id} className="mb-1">
             <Nav.Link eventKey={item.id}>{item.label}</Nav.Link>
           </Nav.Item>
         ))}
