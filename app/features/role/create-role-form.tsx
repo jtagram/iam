@@ -140,7 +140,7 @@ export function CreateRoleForm() {
         {errors.root && <Alert variant="danger">{errors.root.message}</Alert>}
         {success && <Alert variant="success">{success}</Alert>}
 
-        <Button type="submit" disabled={isSubmitting || !isValid}>
+        <Button type="submit" variant="dark" disabled={isSubmitting || !isValid}>
           {isSubmitting ? "Creando…" : "Crear"}
         </Button>
       </Form>

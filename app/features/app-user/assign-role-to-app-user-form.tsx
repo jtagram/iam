@@ -209,7 +209,7 @@ export function AssignRoleToAppUserForm() {
         )}
         {success && <Alert variant="success">{success}</Alert>}
 
-        <Button type="submit" disabled={isSubmitting || !isValid}>
+        <Button type="submit" variant="dark" disabled={isSubmitting || !isValid}>
           {isSubmitting ? "Asignando…" : "Asignar"}
         </Button>
       </Form>

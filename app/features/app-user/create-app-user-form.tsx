@@ -87,7 +87,7 @@ export function CreateAppUserForm() {
 
         {errors.root && <Alert variant="danger">{errors.root.message}</Alert>}
 
-        <Button type="submit" disabled={isSubmitting || !isValid}>
+        <Button type="submit" variant="dark" disabled={isSubmitting || !isValid}>
           {isSubmitting ? "Creando…" : "Crear"}
         </Button>
       </Form>
