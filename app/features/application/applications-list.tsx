@@ -1,17 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
-interface Application {
-  id: number;
-  name: string;
-  description: string;
-}
-
-interface ApplicationsResponse {
-  data?: Application[];
-  message?: string;
-}
+import { getApplications } from "@/app/features/application/application.service";
+import type { Application } from "@/app/features/application/application.dto";
 
 export function ApplicationsList() {
   const [applications, setApplications] = useState<Application[] | null>(
@@ -20,34 +11,20 @@ export function ApplicationsList() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
+    const controller = new AbortController();
 
     async function loadApplications() {
       try {
-        const response = await fetch("/api/applications");
-        const data = (await response
-          .json()
-          .catch(() => null)) as ApplicationsResponse | null;
-
-        if (cancelled) return;
-
-        if (!response.ok) {
-          setError(data?.message ?? "No se pudieron obtener las aplicaciones.");
-          return;
-        }
-
-        setApplications(data?.data ?? []);
-      } catch {
-        if (!cancelled) {
-          setError("No se pudo conectar con el servidor.");
-        }
+        const loaded = await getApplications(controller.signal);
+        setApplications(loaded);
+      } catch (err) {
+        if (controller.signal.aborted) return;
+        setError((err as Error).message);
       }
     }
 
     loadApplications();
-    return () => {
-      cancelled = true;
-    };
+    return () => controller.abort();
   }, []);
 
   return (

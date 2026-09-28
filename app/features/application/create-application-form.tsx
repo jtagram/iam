@@ -1,12 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-
-interface CreateApplicationResponse {
-  msg?: string;
-  data?: { id: number; name: string; description: string };
-  message?: string;
-}
+import { createApplication } from "@/app/features/application/application.service";
 
 export function CreateApplicationForm() {
   const [name, setName] = useState("");
@@ -22,26 +17,15 @@ export function CreateApplicationForm() {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch("/api/applications", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, description }),
-      });
+      const created = await createApplication({ name, description });
 
-      const data = (await response
-        .json()
-        .catch(() => null)) as CreateApplicationResponse | null;
-
-      if (!response.ok) {
-        setError(data?.message ?? "No se pudo crear la aplicación.");
-        return;
-      }
-
-      setSuccess(`Aplicación "${data?.data?.name ?? name}" creada correctamente.`);
+      setSuccess(
+        `Aplicación "${created?.name ?? name}" creada correctamente.`,
+      );
       setName("");
       setDescription("");
-    } catch {
-      setError("No se pudo conectar con el servidor.");
+    } catch (err) {
+      setError((err as Error).message);
     } finally {
       setIsSubmitting(false);
     }
