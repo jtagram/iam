@@ -1,29 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
-interface Application {
-  id: number;
-  name: string;
-  description: string;
-}
-
-interface Role {
-  id: number;
-  applicationId: number;
-  name: string;
-  description: string;
-}
-
-interface ApplicationsResponse {
-  data?: Application[];
-  message?: string;
-}
-
-interface RolesResponse {
-  data?: Role[];
-  message?: string;
-}
+import { getApplications } from "@/app/features/application/application.service";
+import { getRolesByApplication } from "@/app/features/role/role.service";
 
 interface ApplicationRolesRow {
   applicationId: number;
@@ -35,45 +14,19 @@ export function ApplicationRolesList() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
+    const controller = new AbortController();
 
     async function loadApplicationRoles() {
       try {
-        const applicationsResponse = await fetch("/api/applications");
-        const applicationsData = (await applicationsResponse
-          .json()
-          .catch(() => null)) as ApplicationsResponse | null;
-
-        if (cancelled) return;
-
-        if (!applicationsResponse.ok) {
-          setError(
-            applicationsData?.message ??
-              "No se pudieron obtener las aplicaciones.",
-          );
-          return;
-        }
-
-        const applications = applicationsData?.data ?? [];
+        const applications = await getApplications(controller.signal);
 
         const rolesByApplication = await Promise.all(
           applications.map(async (application) => {
-            const rolesResponse = await fetch(
-              `/api/roles?applicationId=${application.id}`,
+            const roles = await getRolesByApplication(
+              application.id,
+              controller.signal,
             );
-            const rolesData = (await rolesResponse
-              .json()
-              .catch(() => null)) as RolesResponse | null;
-
-            if (!rolesResponse.ok) {
-              throw new Error(
-                rolesData?.message ?? "No se pudieron obtener los roles.",
-              );
-            }
-
-            const roleNames = (rolesData?.data ?? [])
-              .map((role) => role.name)
-              .join(",");
+            const roleNames = roles.map((role) => role.name).join(",");
 
             return {
               applicationId: application.id,
@@ -82,24 +35,15 @@ export function ApplicationRolesList() {
           }),
         );
 
-        if (!cancelled) {
-          setRows(rolesByApplication);
-        }
+        setRows(rolesByApplication);
       } catch (err) {
-        if (!cancelled) {
-          setError(
-            err instanceof Error
-              ? err.message
-              : "No se pudo conectar con el servidor.",
-          );
-        }
+        if (controller.signal.aborted) return;
+        setError((err as Error).message);
       }
     }
 
     loadApplicationRoles();
-    return () => {
-      cancelled = true;
-    };
+    return () => controller.abort();
   }, []);
 
   return (

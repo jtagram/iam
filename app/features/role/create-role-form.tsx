@@ -1,22 +1,9 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
-
-interface Application {
-  id: number;
-  name: string;
-  description: string;
-}
-
-interface ApplicationsResponse {
-  data?: Application[];
-  message?: string;
-}
-
-interface CreateRoleResponse {
-  data?: { id: number; applicationId: number; name: string; description: string };
-  message?: string;
-}
+import { getApplications } from "@/app/features/application/application.service";
+import type { Application } from "@/app/features/application/application.dto";
+import { createRole } from "@/app/features/role/role.service";
 
 export function CreateRoleForm() {
   const [applications, setApplications] = useState<Application[] | null>(
@@ -32,40 +19,20 @@ export function CreateRoleForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    let cancelled = false;
+    const controller = new AbortController();
 
     async function loadApplications() {
       try {
-        const response = await fetch("/api/applications");
-        const data = (await response
-          .json()
-          .catch(() => null)) as ApplicationsResponse | null;
-
-        if (cancelled) return;
-
-        if (!response.ok) {
-          setLoadError(
-            data?.message ?? "No se pudieron obtener las aplicaciones.",
-          );
-          return;
-        }
-
-        const loaded = data?.data ?? [];
+        const loaded = await getApplications(controller.signal);
         setApplications(loaded);
-        if (loaded.length > 0) {
-          setApplicationId(String(loaded[0].id));
-        }
-      } catch {
-        if (!cancelled) {
-          setLoadError("No se pudo conectar con el servidor.");
-        }
+      } catch (err) {
+        if (controller.signal.aborted) return;
+        setLoadError((err as Error).message);
       }
     }
 
     loadApplications();
-    return () => {
-      cancelled = true;
-    };
+    return () => controller.abort();
   }, []);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -75,30 +42,17 @@ export function CreateRoleForm() {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch("/api/roles", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          applicationId: Number(applicationId),
-          name,
-          description,
-        }),
+      const created = await createRole({
+        applicationId: Number(applicationId),
+        name,
+        description,
       });
 
-      const data = (await response
-        .json()
-        .catch(() => null)) as CreateRoleResponse | null;
-
-      if (!response.ok) {
-        setError(data?.message ?? "No se pudo crear el rol.");
-        return;
-      }
-
-      setSuccess(`Rol "${data?.data?.name ?? name}" creado correctamente.`);
+      setSuccess(`Rol "${created?.name ?? name}" creado correctamente.`);
       setName("");
       setDescription("");
-    } catch {
-      setError("No se pudo conectar con el servidor.");
+    } catch (err) {
+      setError((err as Error).message);
     } finally {
       setIsSubmitting(false);
     }
@@ -144,6 +98,9 @@ export function CreateRoleForm() {
               onChange={(event) => setApplicationId(event.target.value)}
               className="w-full rounded border border-black/[.15] bg-white px-3 py-2 text-black focus:outline-none focus:ring-2 focus:ring-black/20 dark:border-white/[.2] dark:bg-black dark:text-zinc-50"
             >
+              <option value="" disabled>
+                Seleccionar
+              </option>
               {applications.map((application) => (
                 <option key={application.id} value={application.id}>
                   {application.name}
@@ -216,7 +173,7 @@ export function CreateRoleForm() {
 
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isSubmitting || !applicationId}
             className="rounded-full bg-foreground px-5 py-2.5 text-background transition-colors hover:bg-[#383838] disabled:opacity-60 dark:hover:bg-[#ccc]"
           >
             {isSubmitting ? "Creando…" : "Crear"}
