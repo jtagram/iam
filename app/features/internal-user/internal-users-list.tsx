@@ -1,20 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
-interface InternalUser {
-  id: number;
-  name: string;
-  lastname: string;
-  email: string;
-}
-
-interface AssignedApplication {
-  applicationId: number;
-  applicationName: string;
-  applicationDescription: string;
-  roles: Array<{ id: number; name: string; description: string }>;
-}
+import {
+  getAssignedApplicationsForInternalUser,
+  getInternalUsers,
+} from "@/app/features/internal-user/internal-user.service";
+import type {
+  AssignedApplication,
+  InternalUser,
+} from "@/app/features/internal-user/internal-user.dto";
 
 interface InternalUserRow {
   internalUser: InternalUser;
@@ -26,71 +20,31 @@ export function InternalUsersList() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
+    const controller = new AbortController();
 
     async function loadInternalUsers() {
       try {
-        const internalUsersResponse = await fetch("/api/internal-users");
-        const internalUsersData = (await internalUsersResponse
-          .json()
-          .catch(() => null)) as InternalUser[] | { message?: string } | null;
-
-        if (cancelled) return;
-
-        if (!internalUsersResponse.ok) {
-          setError(
-            (internalUsersData as { message?: string } | null)?.message ??
-              "No se pudieron obtener los usuarios internos.",
-          );
-          return;
-        }
-
-        const internalUsers = (internalUsersData as InternalUser[]) ?? [];
+        const internalUsers = await getInternalUsers(controller.signal);
 
         const loadedRows = await Promise.all(
-          internalUsers.map(async (internalUser) => {
-            const assignedResponse = await fetch(
-              `/api/internal-users/${internalUser.id}/applications`,
-            );
-            const assignedData = (await assignedResponse
-              .json()
-              .catch(() => null)) as
-              | AssignedApplication[]
-              | { message?: string }
-              | null;
-
-            if (!assignedResponse.ok) {
-              throw new Error(
-                (assignedData as { message?: string } | null)?.message ??
-                  "No se pudieron obtener las aplicaciones asignadas.",
-              );
-            }
-
-            return {
-              internalUser,
-              assignedApplications: (assignedData as AssignedApplication[]) ?? [],
-            };
-          }),
+          internalUsers.map(async (internalUser) => ({
+            internalUser,
+            assignedApplications: await getAssignedApplicationsForInternalUser(
+              internalUser.id,
+              controller.signal,
+            ),
+          })),
         );
 
-        if (!cancelled) {
-          setRows(loadedRows);
-        }
+        setRows(loadedRows);
       } catch (err) {
-        if (!cancelled) {
-          setError(
-            err instanceof Error
-              ? err.message
-              : "No se pudo conectar con el servidor.",
-          );
-        }
+        if (controller.signal.aborted) return;
+        setError((err as Error).message);
       }
     }
 
     loadInternalUsers();
-    return () => {
-      cancelled = true;
-    };
+    return () => controller.abort();
   }, []);
 
   return (

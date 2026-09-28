@@ -1,28 +1,13 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
-
-interface InternalUser {
-  id: number;
-  name: string;
-  lastname: string;
-  email: string;
-}
-
-interface Application {
-  id: number;
-  name: string;
-  description: string;
-}
-
-interface ApplicationsResponse {
-  data?: Application[];
-  message?: string;
-}
-
-interface AssignApplicationResponse {
-  message?: string;
-}
+import { getApplications } from "@/app/features/application/application.service";
+import type { Application } from "@/app/features/application/application.dto";
+import {
+  assignApplicationToInternalUser,
+  getInternalUsers,
+} from "@/app/features/internal-user/internal-user.service";
+import type { InternalUser } from "@/app/features/internal-user/internal-user.dto";
 
 export function AssignApplicationToInternalUserForm() {
   const [internalUsers, setInternalUsers] = useState<InternalUser[] | null>(
@@ -40,64 +25,25 @@ export function AssignApplicationToInternalUserForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    let cancelled = false;
+    const controller = new AbortController();
 
     async function loadOptions() {
       try {
-        const [internalUsersResponse, applicationsResponse] =
-          await Promise.all([
-            fetch("/api/internal-users"),
-            fetch("/api/applications"),
-          ]);
-
-        const internalUsersData = (await internalUsersResponse
-          .json()
-          .catch(() => null)) as InternalUser[] | { message?: string } | null;
-        const applicationsData = (await applicationsResponse
-          .json()
-          .catch(() => null)) as ApplicationsResponse | null;
-
-        if (cancelled) return;
-
-        if (!internalUsersResponse.ok) {
-          setLoadError(
-            (internalUsersData as { message?: string } | null)?.message ??
-              "No se pudieron obtener los usuarios internos.",
-          );
-          return;
-        }
-
-        if (!applicationsResponse.ok) {
-          setLoadError(
-            applicationsData?.message ??
-              "No se pudieron obtener las aplicaciones.",
-          );
-          return;
-        }
-
-        const loadedInternalUsers = (internalUsersData as InternalUser[]) ?? [];
-        const loadedApplications = applicationsData?.data ?? [];
+        const [loadedInternalUsers, loadedApplications] = await Promise.all([
+          getInternalUsers(controller.signal),
+          getApplications(controller.signal),
+        ]);
 
         setInternalUsers(loadedInternalUsers);
         setApplications(loadedApplications);
-
-        if (loadedInternalUsers.length > 0) {
-          setInternalUserId(String(loadedInternalUsers[0].id));
-        }
-        if (loadedApplications.length > 0) {
-          setApplicationId(String(loadedApplications[0].id));
-        }
-      } catch {
-        if (!cancelled) {
-          setLoadError("No se pudo conectar con el servidor.");
-        }
+      } catch (err) {
+        if (controller.signal.aborted) return;
+        setLoadError((err as Error).message);
       }
     }
 
     loadOptions();
-    return () => {
-      cancelled = true;
-    };
+    return () => controller.abort();
   }, []);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -107,27 +53,13 @@ export function AssignApplicationToInternalUserForm() {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch(
-        `/api/internal-users/${internalUserId}/applications`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ applicationId: Number(applicationId) }),
-        },
-      );
-
-      const data = (await response
-        .json()
-        .catch(() => null)) as AssignApplicationResponse | null;
-
-      if (!response.ok) {
-        setError(data?.message ?? "No se pudo asignar la aplicación.");
-        return;
-      }
+      await assignApplicationToInternalUser(internalUserId, {
+        applicationId: Number(applicationId),
+      });
 
       setSuccess("Aplicación asignada correctamente.");
-    } catch {
-      setError("No se pudo conectar con el servidor.");
+    } catch (err) {
+      setError((err as Error).message);
     } finally {
       setIsSubmitting(false);
     }
@@ -182,6 +114,9 @@ export function AssignApplicationToInternalUserForm() {
               onChange={(event) => setInternalUserId(event.target.value)}
               className="w-full rounded border border-black/[.15] bg-white px-3 py-2 text-black focus:outline-none focus:ring-2 focus:ring-black/20 dark:border-white/[.2] dark:bg-black dark:text-zinc-50"
             >
+              <option value="" disabled>
+                Seleccionar
+              </option>
               {internalUsers!.map((internalUser) => (
                 <option key={internalUser.id} value={internalUser.id}>
                   {internalUser.name} {internalUser.lastname}
@@ -205,6 +140,9 @@ export function AssignApplicationToInternalUserForm() {
               onChange={(event) => setApplicationId(event.target.value)}
               className="w-full rounded border border-black/[.15] bg-white px-3 py-2 text-black focus:outline-none focus:ring-2 focus:ring-black/20 dark:border-white/[.2] dark:bg-black dark:text-zinc-50"
             >
+              <option value="" disabled>
+                Seleccionar
+              </option>
               {applications!.map((application) => (
                 <option key={application.id} value={application.id}>
                   {application.name}
@@ -233,7 +171,7 @@ export function AssignApplicationToInternalUserForm() {
 
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isSubmitting || !internalUserId || !applicationId}
             className="rounded-full bg-foreground px-5 py-2.5 text-background transition-colors hover:bg-[#383838] disabled:opacity-60 dark:hover:bg-[#ccc]"
           >
             {isSubmitting ? "Asignando…" : "Asignar"}

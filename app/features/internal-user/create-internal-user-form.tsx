@@ -1,17 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-
-interface CreatedInternalUser {
-  id: number;
-  name: string;
-  lastname: string;
-  email: string;
-}
-
-interface CreateInternalUserResponse extends Partial<CreatedInternalUser> {
-  message?: string;
-}
+import { createInternalUser } from "@/app/features/internal-user/internal-user.service";
 
 export function CreateInternalUserForm() {
   const [name, setName] = useState("");
@@ -29,32 +19,24 @@ export function CreateInternalUserForm() {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch("/api/internal-users", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, lastname, email, password }),
+      const created = await createInternalUser({
+        name,
+        lastname,
+        email,
+        password,
       });
 
-      const data = (await response
-        .json()
-        .catch(() => null)) as CreateInternalUserResponse | null;
-
-      if (!response.ok) {
-        setError(data?.message ?? "No se pudo crear el usuario interno.");
-        return;
-      }
-
       setSuccess(
-        `Usuario interno "${data?.name ?? name} ${
-          data?.lastname ?? lastname
+        `Usuario interno "${created.name ?? name} ${
+          created.lastname ?? lastname
         }" creado correctamente.`,
       );
       setName("");
       setLastname("");
       setEmail("");
       setPassword("");
-    } catch {
-      setError("No se pudo conectar con el servidor.");
+    } catch (err) {
+      setError((err as Error).message);
     } finally {
       setIsSubmitting(false);
     }
