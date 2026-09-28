@@ -2,18 +2,18 @@
 
 import { useState } from "react";
 import { NAV_ITEMS, type NavItemId } from "@/app/lib/nav-items";
-import { CreateApplicationForm } from "@/app/components/create-application-form";
-import { ApplicationsList } from "@/app/components/applications-list";
-import { CreateRoleForm } from "@/app/components/create-role-form";
-import { ApplicationRolesList } from "@/app/components/application-roles-list";
-import { CreateAppUserForm } from "@/app/components/create-app-user-form";
-import { AssignApplicationForm } from "@/app/components/assign-application-form";
-import { AssignRoleToAppUserForm } from "@/app/components/assign-role-to-app-user-form";
-import { AppUsersList } from "@/app/components/app-users-list";
-import { CreateInternalUserForm } from "@/app/components/create-internal-user-form";
-import { AssignApplicationToInternalUserForm } from "@/app/components/assign-application-to-internal-user-form";
-import { AssignRoleToInternalUserForm } from "@/app/components/assign-role-to-internal-user-form";
-import { InternalUsersList } from "@/app/components/internal-users-list";
+import { CreateApplicationForm } from "@/app/features/application/create-application-form";
+import { ApplicationsList } from "@/app/features/application/applications-list";
+import { CreateRoleForm } from "@/app/features/role/create-role-form";
+import { ApplicationRolesList } from "@/app/features/role/application-roles-list";
+import { CreateAppUserForm } from "@/app/features/app-user/create-app-user-form";
+import { AssignApplicationForm } from "@/app/features/app-user/assign-application-form";
+import { AssignRoleToAppUserForm } from "@/app/features/app-user/assign-role-to-app-user-form";
+import { AppUsersList } from "@/app/features/app-user/app-users-list";
+import { CreateInternalUserForm } from "@/app/features/internal-user/create-internal-user-form";
+import { AssignApplicationToInternalUserForm } from "@/app/features/internal-user/assign-application-to-internal-user-form";
+import { AssignRoleToInternalUserForm } from "@/app/features/internal-user/assign-role-to-internal-user-form";
+import { InternalUsersList } from "@/app/features/internal-user/internal-users-list";
 
 export function HomeShell() {
   const [selected, setSelected] = useState<NavItemId>(NAV_ITEMS[0].id);
