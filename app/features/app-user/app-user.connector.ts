@@ -4,8 +4,11 @@ import type {
   AssignRoleToAppUserPayload,
   CreateAppUserPayload,
   CreateAppUserResult,
+  CreateConnectionPayload,
+  CreateConnectionResult,
   FetchAppUsersResult,
   FetchAssignedApplicationsResult,
+  FetchConnectionsResult,
 } from "@/app/features/app-user/app-user.dto";
 
 async function fetchList<T extends { ok: boolean; data: unknown }>(
@@ -32,6 +35,33 @@ export function fetchAssignedApplications(
     `/api/apps-users/${appUserId}/applications`,
     signal,
   );
+}
+
+export function fetchConnectionsForAppUser(
+  appUserId: number | string,
+  signal?: AbortSignal,
+): Promise<FetchConnectionsResult> {
+  return fetchList<FetchConnectionsResult>(
+    `/api/apps-users/${appUserId}/connections`,
+    signal,
+  );
+}
+
+export async function postConnectionForAppUser(
+  appUserId: number | string,
+  payload: CreateConnectionPayload,
+): Promise<CreateConnectionResult> {
+  const response = await fetch(`/api/apps-users/${appUserId}/connections`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  const data = (await response
+    .json()
+    .catch(() => null)) as CreateConnectionResult["data"];
+
+  return { ok: response.ok, data };
 }
 
 export async function postAppUser(

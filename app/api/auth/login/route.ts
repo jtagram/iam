@@ -29,6 +29,10 @@ export async function POST(request: Request) {
     "IAM_APPLICATION_NAME",
     process.env.IAM_APPLICATION_NAME,
   );
+  const IAM_TARGET_APPLICATION_NAME = requireEnv(
+    "IAM_TARGET_APPLICATION_NAME",
+    process.env.IAM_TARGET_APPLICATION_NAME,
+  );
   let body: LoginRequestBody;
   try {
     body = (await request.json()) as LoginRequestBody;
@@ -52,6 +56,7 @@ export async function POST(request: Request) {
     headers: {
       "Content-Type": "application/json",
       "x-application-name": IAM_APPLICATION_NAME,
+      "x-target-application": IAM_TARGET_APPLICATION_NAME,
     },
     body: JSON.stringify({ email, password }),
   });

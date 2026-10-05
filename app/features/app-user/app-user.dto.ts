@@ -65,6 +65,39 @@ export interface FetchAssignedApplicationsResult {
   data: AssignedApplicationsResponse | null;
 }
 
+export interface ApplicationConnection {
+  id: number;
+  originApplicationId: number;
+  originApplicationName: string;
+  destinationApplicationId: number;
+  destinationApplicationName: string;
+}
+
+export interface CreateConnectionPayload {
+  originApplicationId: number;
+  destinationApplicationId: number;
+}
+
+export interface ConnectionsListResponse {
+  data?: ApplicationConnection[];
+  message?: string;
+}
+
+export interface FetchConnectionsResult {
+  ok: boolean;
+  data: ConnectionsListResponse | null;
+}
+
+export interface CreateConnectionResponse {
+  data?: ApplicationConnection;
+  message?: string;
+}
+
+export interface CreateConnectionResult {
+  ok: boolean;
+  data: CreateConnectionResponse | null;
+}
+
 export interface AssignApplicationToAppUserPayload {
   applicationId: number;
 }

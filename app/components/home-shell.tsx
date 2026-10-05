@@ -10,10 +10,12 @@ import { ApplicationRolesList } from "@/app/features/role/application-roles-list
 import { CreateAppUserForm } from "@/app/features/app-user/create-app-user-form";
 import { AssignApplicationForm } from "@/app/features/app-user/assign-application-form";
 import { AssignRoleToAppUserForm } from "@/app/features/app-user/assign-role-to-app-user-form";
+import { ConnectApplicationsForAppUserForm } from "@/app/features/app-user/connect-applications-for-app-user-form";
 import { AppUsersList } from "@/app/features/app-user/app-users-list";
 import { CreateInternalUserForm } from "@/app/features/internal-user/create-internal-user-form";
 import { AssignApplicationToInternalUserForm } from "@/app/features/internal-user/assign-application-to-internal-user-form";
 import { AssignRoleToInternalUserForm } from "@/app/features/internal-user/assign-role-to-internal-user-form";
+import { ConnectApplicationsForInternalUserForm } from "@/app/features/internal-user/connect-applications-for-internal-user-form";
 import { InternalUsersList } from "@/app/features/internal-user/internal-users-list";
 
 export function HomeShell() {
@@ -50,6 +52,9 @@ export function HomeShell() {
         {selected === "assign-role-to-app-user" && (
           <AssignRoleToAppUserForm />
         )}
+        {selected === "connect-applications-for-app-user" && (
+          <ConnectApplicationsForAppUserForm />
+        )}
         {selected === "view-app-users" && <AppUsersList />}
         {selected === "create-internal-user" && <CreateInternalUserForm />}
         {selected === "assign-application-to-internal-user" && (
@@ -57,6 +62,9 @@ export function HomeShell() {
         )}
         {selected === "assign-role-to-internal-user" && (
           <AssignRoleToInternalUserForm />
+        )}
+        {selected === "connect-applications-for-internal-user" && (
+          <ConnectApplicationsForInternalUserForm />
         )}
         {selected === "view-internal-users" && <InternalUsersList />}
       </main>

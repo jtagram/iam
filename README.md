@@ -8,6 +8,7 @@ que la necesita falla al arrancar):
 
 - `IAM_API_URL`
 - `IAM_APPLICATION_NAME`
+- `IAM_TARGET_APPLICATION_NAME`
 
 ## Cómo obtener cada una
 
@@ -21,3 +22,9 @@ del cluster, o su URL pública si corre fuera).
 Debe ser exactamente el mismo valor configurado como `IAM_APPLICATION_NAME`
 en `iam-api`. Se usa al hacer login para pedir un token emitido para la
 aplicación "iam".
+
+### `IAM_TARGET_APPLICATION_NAME`
+
+Nombre de la aplicación destino a la que apunta el login. Se envía en el
+header `x-target-application` junto con `x-application-name` (la aplicación
+origen).

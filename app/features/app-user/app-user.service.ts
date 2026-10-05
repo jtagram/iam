@@ -1,21 +1,27 @@
 import {
   fetchAppUsers,
   fetchAssignedApplications,
+  fetchConnectionsForAppUser,
   postAppUser,
   postAssignApplicationToAppUser,
   postAssignRoleToAppUser,
+  postConnectionForAppUser,
 } from "@/app/features/app-user/app-user.connector";
 import type {
   AppUser,
+  ApplicationConnection,
   AssignApplicationToAppUserPayload,
   AssignedApplication,
   AssignResult,
   AssignRoleToAppUserPayload,
   CreateAppUserPayload,
   CreateAppUserResult,
+  CreateConnectionPayload,
+  CreateConnectionResult,
   CreatedAppUser,
   FetchAppUsersResult,
   FetchAssignedApplicationsResult,
+  FetchConnectionsResult,
 } from "@/app/features/app-user/app-user.dto";
 
 export async function getAppUsers(signal?: AbortSignal): Promise<AppUser[]> {
@@ -59,6 +65,45 @@ export async function getAssignedApplicationsForAppUser(
   }
 
   return result.data?.data ?? [];
+}
+
+export async function getConnectionsForAppUser(
+  appUserId: number | string,
+  signal?: AbortSignal,
+): Promise<ApplicationConnection[]> {
+  let result: FetchConnectionsResult;
+  try {
+    result = await fetchConnectionsForAppUser(appUserId, signal);
+  } catch (err) {
+    if (signal?.aborted) {
+      throw err;
+    }
+    throw new Error("No se pudo conectar con el servidor.");
+  }
+
+  if (!result.ok) {
+    throw new Error(
+      result.data?.message ?? "No se pudieron obtener las conexiones.",
+    );
+  }
+
+  return result.data?.data ?? [];
+}
+
+export async function createConnectionForAppUser(
+  appUserId: number | string,
+  payload: CreateConnectionPayload,
+): Promise<void> {
+  let result: CreateConnectionResult;
+  try {
+    result = await postConnectionForAppUser(appUserId, payload);
+  } catch {
+    throw new Error("No se pudo conectar con el servidor.");
+  }
+
+  if (!result.ok) {
+    throw new Error(result.data?.message ?? "No se pudo crear la conexión.");
+  }
 }
 
 export async function createAppUser(

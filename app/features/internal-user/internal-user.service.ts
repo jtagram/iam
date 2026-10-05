@@ -1,20 +1,26 @@
 import {
   fetchAssignedApplicationsForInternalUser,
+  fetchConnectionsForInternalUser,
   fetchInternalUsers,
   postAssignApplicationToInternalUser,
+  postConnectionForInternalUser,
   postAssignRoleToInternalUser,
   postInternalUser,
 } from "@/app/features/internal-user/internal-user.connector";
 import type {
+  ApplicationConnection,
   AssignApplicationToInternalUserPayload,
   AssignedApplication,
   AssignResult,
   AssignRoleToInternalUserPayload,
+  CreateConnectionPayload,
+  CreateConnectionResult,
   CreateInternalUserPayload,
   CreateInternalUserResult,
   CreatedInternalUser,
   ErrorResponse,
   FetchAssignedApplicationsResult,
+  FetchConnectionsResult,
   FetchInternalUsersResult,
   InternalUser,
 } from "@/app/features/internal-user/internal-user.dto";
@@ -67,6 +73,46 @@ export async function getAssignedApplicationsForInternalUser(
   }
 
   return (result.data as AssignedApplication[]) ?? [];
+}
+
+export async function getConnectionsForInternalUser(
+  internalUserId: number | string,
+  signal?: AbortSignal,
+): Promise<ApplicationConnection[]> {
+  let result: FetchConnectionsResult;
+  try {
+    result = await fetchConnectionsForInternalUser(internalUserId, signal);
+  } catch (err) {
+    if (signal?.aborted) {
+      throw err;
+    }
+    throw new Error("No se pudo conectar con el servidor.");
+  }
+
+  if (!result.ok) {
+    throw new Error(
+      (result.data as ErrorResponse | null)?.message ??
+        "No se pudieron obtener las conexiones.",
+    );
+  }
+
+  return (result.data as ApplicationConnection[]) ?? [];
+}
+
+export async function createConnectionForInternalUser(
+  internalUserId: number | string,
+  payload: CreateConnectionPayload,
+): Promise<void> {
+  let result: CreateConnectionResult;
+  try {
+    result = await postConnectionForInternalUser(internalUserId, payload);
+  } catch {
+    throw new Error("No se pudo conectar con el servidor.");
+  }
+
+  if (!result.ok) {
+    throw new Error(result.data?.message ?? "No se pudo crear la conexión.");
+  }
 }
 
 export async function createInternalUser(

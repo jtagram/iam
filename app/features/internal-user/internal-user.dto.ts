@@ -60,6 +60,31 @@ export interface FetchAssignedApplicationsResult {
   data: AssignedApplicationsListResponse | null;
 }
 
+export interface ApplicationConnection {
+  id: number;
+  originApplicationId: number;
+  originApplicationName: string;
+  destinationApplicationId: number;
+  destinationApplicationName: string;
+}
+
+export interface CreateConnectionPayload {
+  originApplicationId: number;
+  destinationApplicationId: number;
+}
+
+export type ConnectionsListResponse = ApplicationConnection[] | ErrorResponse;
+
+export interface FetchConnectionsResult {
+  ok: boolean;
+  data: ConnectionsListResponse | null;
+}
+
+export interface CreateConnectionResult {
+  ok: boolean;
+  data: (Partial<ApplicationConnection> & ErrorResponse) | null;
+}
+
 export interface AssignApplicationToInternalUserPayload {
   applicationId: number;
 }
