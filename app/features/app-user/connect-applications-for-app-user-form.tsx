@@ -188,7 +188,7 @@ export function ConnectApplicationsForAppUserForm() {
   return (
     <div style={{ maxWidth: 640 }}>
       <h2 className="h4 mb-4">
-        Relacionar aplicaciones para usuarios de aplicacion
+        Relacionar aplicaciones para usuarios de aplicación
       </h2>
 
       <Form onSubmit={onSubmit}>

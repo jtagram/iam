@@ -1,21 +1,14 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { AUTH_COOKIE_NAME } from "@/app/lib/auth-cookie";
 import { requireEnv } from "@/app/lib/require-env";
+import {
+  forwardIamResponse,
+  getAuthToken,
+  invalidIdResponse,
+  isValidId,
+} from "@/app/lib/iam-proxy";
 
 interface AssignApplicationRequestBody {
   applicationId?: number;
-}
-
-interface IamErrorBody {
-  message?: string | string[];
-}
-
-function extractErrorMessage(body: IamErrorBody, fallback: string): string {
-  if (Array.isArray(body.message)) {
-    return body.message.join(", ");
-  }
-  return body.message ?? fallback;
 }
 
 export async function GET(
@@ -23,17 +16,15 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const IAM_API_URL = requireEnv("IAM_API_URL", process.env.IAM_API_URL);
-  const cookieStore = await cookies();
-  const token = cookieStore.get(AUTH_COOKIE_NAME)?.value;
-
-  if (!token) {
-    return NextResponse.json(
-      { message: "No autenticado." },
-      { status: 401 },
-    );
+  const { token, unauthorized } = await getAuthToken();
+  if (unauthorized) {
+    return unauthorized;
   }
 
   const { id } = await params;
+  if (!isValidId(id)) {
+    return invalidIdResponse();
+  }
 
   const iamResponse = await fetch(
     `${IAM_API_URL}/apps-users/${id}/applications`,
@@ -45,21 +36,10 @@ export async function GET(
     },
   );
 
-  const data = await iamResponse.json();
-
-  if (!iamResponse.ok) {
-    return NextResponse.json(
-      {
-        message: extractErrorMessage(
-          data as IamErrorBody,
-          "No se pudieron obtener las aplicaciones asignadas.",
-        ),
-      },
-      { status: iamResponse.status },
-    );
-  }
-
-  return NextResponse.json(data, { status: iamResponse.status });
+  return forwardIamResponse(
+    iamResponse,
+    "No se pudieron obtener las aplicaciones asignadas.",
+  );
 }
 
 export async function POST(
@@ -67,17 +47,15 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const IAM_API_URL = requireEnv("IAM_API_URL", process.env.IAM_API_URL);
-  const cookieStore = await cookies();
-  const token = cookieStore.get(AUTH_COOKIE_NAME)?.value;
-
-  if (!token) {
-    return NextResponse.json(
-      { message: "No autenticado." },
-      { status: 401 },
-    );
+  const { token, unauthorized } = await getAuthToken();
+  if (unauthorized) {
+    return unauthorized;
   }
 
   const { id } = await params;
+  if (!isValidId(id)) {
+    return invalidIdResponse();
+  }
 
   let body: AssignApplicationRequestBody;
   try {
@@ -101,19 +79,8 @@ export async function POST(
     },
   );
 
-  const data = await iamResponse.json();
-
-  if (!iamResponse.ok) {
-    return NextResponse.json(
-      {
-        message: extractErrorMessage(
-          data as IamErrorBody,
-          "No se pudo asignar la aplicación al usuario.",
-        ),
-      },
-      { status: iamResponse.status },
-    );
-  }
-
-  return NextResponse.json(data, { status: iamResponse.status });
+  return forwardIamResponse(
+    iamResponse,
+    "No se pudo asignar la aplicación al usuario.",
+  );
 }

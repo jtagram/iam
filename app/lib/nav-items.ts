@@ -36,7 +36,7 @@ export const NAV_ITEMS: NavItem[] = [
   },
   {
     id: "connect-applications-for-app-user",
-    label: "Relacionar aplicaciones para usuarios de aplicacion",
+    label: "Relacionar aplicaciones para usuarios de aplicación",
   },
   { id: "view-app-users", label: "Ver usuarios de aplicación" },
   { id: "create-internal-user", label: "Crear usuario interno" },
