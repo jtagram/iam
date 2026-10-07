@@ -1,11 +1,11 @@
 import { render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { getApplications } from "@/app/features/application/application.service";
-import { getRolesByApplication } from "./role.service";
-import { ApplicationRolesList } from "./application-roles-list";
+import { getRolesByApplication } from "../role.service";
+import { ApplicationRolesList } from "../application-roles-list";
 
 vi.mock("@/app/features/application/application.service");
-vi.mock("./role.service");
+vi.mock("../role.service");
 
 afterEach(() => {
   vi.resetAllMocks();

@@ -2,13 +2,13 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   fetchRolesByApplication,
   postRole,
-} from "./role.connector";
+} from "../role.connector";
 import {
   getRolesByApplication,
   createRole,
-} from "./role.service";
+} from "../role.service";
 
-vi.mock("./role.connector");
+vi.mock("../role.connector");
 
 afterEach(() => {
   vi.resetAllMocks();

@@ -7,7 +7,7 @@ import {
   postConnectionForAppUser,
   postAssignApplicationToAppUser,
   postAssignRoleToAppUser,
-} from "./app-user.connector";
+} from "../app-user.connector";
 import {
   getAppUsers,
   getAssignedApplicationsForAppUser,
@@ -16,9 +16,9 @@ import {
   createConnectionForAppUser,
   assignApplicationToAppUser,
   assignRoleToAppUser,
-} from "./app-user.service";
+} from "../app-user.service";
 
-vi.mock("./app-user.connector");
+vi.mock("../app-user.connector");
 
 afterEach(() => {
   vi.resetAllMocks();

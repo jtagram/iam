@@ -3,12 +3,12 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { getApplications } from "@/app/features/application/application.service";
 import { getRolesByApplication } from "@/app/features/role/role.service";
-import { assignRoleToAppUser, getAppUsers } from "./app-user.service";
-import { AssignRoleToAppUserForm } from "./assign-role-to-app-user-form";
+import { assignRoleToAppUser, getAppUsers } from "../app-user.service";
+import { AssignRoleToAppUserForm } from "../assign-role-to-app-user-form";
 
 vi.mock("@/app/features/application/application.service");
 vi.mock("@/app/features/role/role.service");
-vi.mock("./app-user.service");
+vi.mock("../app-user.service");
 
 beforeEach(() => {
   vi.mocked(getAppUsers).mockResolvedValue([

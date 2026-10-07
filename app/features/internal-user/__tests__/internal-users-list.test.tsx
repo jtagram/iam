@@ -3,10 +3,10 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   getAssignedApplicationsForInternalUser,
   getInternalUsers,
-} from "./internal-user.service";
-import { InternalUsersList } from "./internal-users-list";
+} from "../internal-user.service";
+import { InternalUsersList } from "../internal-users-list";
 
-vi.mock("./internal-user.service");
+vi.mock("../internal-user.service");
 
 afterEach(() => {
   vi.resetAllMocks();

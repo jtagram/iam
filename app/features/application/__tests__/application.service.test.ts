@@ -2,13 +2,13 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   fetchApplications,
   postApplication,
-} from "./application.connector";
+} from "../application.connector";
 import {
   getApplications,
   createApplication,
-} from "./application.service";
+} from "../application.service";
 
-vi.mock("./application.connector");
+vi.mock("../application.connector");
 
 afterEach(() => {
   vi.resetAllMocks();

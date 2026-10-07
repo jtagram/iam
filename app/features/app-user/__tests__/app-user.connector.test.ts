@@ -1,13 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
-  fetchInternalUsers,
-  fetchAssignedApplicationsForInternalUser,
-  fetchConnectionsForInternalUser,
-  postInternalUser,
-  postConnectionForInternalUser,
-  postAssignApplicationToInternalUser,
-  postAssignRoleToInternalUser,
-} from "./internal-user.connector";
+  fetchAppUsers,
+  fetchAssignedApplications,
+  fetchConnectionsForAppUser,
+  postAppUser,
+  postConnectionForAppUser,
+  postAssignApplicationToAppUser,
+  postAssignRoleToAppUser,
+} from "../app-user.connector";
 
 const fetchMock = vi.fn();
 
@@ -24,14 +24,14 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
-describe("fetchInternalUsers", () => {
-  it("requests /api/internal-users with the abort signal and returns ok and data", async () => {
+describe("fetchAppUsers", () => {
+  it("requests /api/apps-users with the abort signal and returns ok and data", async () => {
     fetchMock.mockResolvedValue(jsonResponse({ data: [] }));
     const controller = new AbortController();
 
-    const result = await fetchInternalUsers(controller.signal);
+    const result = await fetchAppUsers(controller.signal);
 
-    expect(fetchMock).toHaveBeenCalledWith("/api/internal-users", {
+    expect(fetchMock).toHaveBeenCalledWith("/api/apps-users", {
       signal: controller.signal,
     });
     expect(result).toEqual({ ok: true, data: { data: [] } });
@@ -40,7 +40,7 @@ describe("fetchInternalUsers", () => {
   it("returns ok false with the error body on failure", async () => {
     fetchMock.mockResolvedValue(jsonResponse({ message: "boom" }, 500));
 
-    const result = await fetchInternalUsers();
+    const result = await fetchAppUsers();
 
     expect(result).toEqual({ ok: false, data: { message: "boom" } });
   });
@@ -48,7 +48,7 @@ describe("fetchInternalUsers", () => {
   it("returns null data when the body is not JSON", async () => {
     fetchMock.mockResolvedValue(new Response("oops", { status: 502 }));
 
-    const result = await fetchInternalUsers();
+    const result = await fetchAppUsers();
 
     expect(result).toEqual({ ok: false, data: null });
   });
@@ -56,18 +56,18 @@ describe("fetchInternalUsers", () => {
   it("propagates network failures", async () => {
     fetchMock.mockRejectedValue(new Error("network down"));
 
-    await expect(fetchInternalUsers()).rejects.toThrow("network down");
+    await expect(fetchAppUsers()).rejects.toThrow("network down");
   });
 });
 
-describe("fetchAssignedApplicationsForInternalUser", () => {
-  it("requests /api/internal-users/7/applications with the abort signal and returns ok and data", async () => {
+describe("fetchAssignedApplications", () => {
+  it("requests /api/apps-users/7/applications with the abort signal and returns ok and data", async () => {
     fetchMock.mockResolvedValue(jsonResponse({ data: [] }));
     const controller = new AbortController();
 
-    const result = await fetchAssignedApplicationsForInternalUser(7, controller.signal);
+    const result = await fetchAssignedApplications(7, controller.signal);
 
-    expect(fetchMock).toHaveBeenCalledWith("/api/internal-users/7/applications", {
+    expect(fetchMock).toHaveBeenCalledWith("/api/apps-users/7/applications", {
       signal: controller.signal,
     });
     expect(result).toEqual({ ok: true, data: { data: [] } });
@@ -76,7 +76,7 @@ describe("fetchAssignedApplicationsForInternalUser", () => {
   it("returns ok false with the error body on failure", async () => {
     fetchMock.mockResolvedValue(jsonResponse({ message: "boom" }, 500));
 
-    const result = await fetchAssignedApplicationsForInternalUser(7);
+    const result = await fetchAssignedApplications(7);
 
     expect(result).toEqual({ ok: false, data: { message: "boom" } });
   });
@@ -84,7 +84,7 @@ describe("fetchAssignedApplicationsForInternalUser", () => {
   it("returns null data when the body is not JSON", async () => {
     fetchMock.mockResolvedValue(new Response("oops", { status: 502 }));
 
-    const result = await fetchAssignedApplicationsForInternalUser(7);
+    const result = await fetchAssignedApplications(7);
 
     expect(result).toEqual({ ok: false, data: null });
   });
@@ -92,18 +92,18 @@ describe("fetchAssignedApplicationsForInternalUser", () => {
   it("propagates network failures", async () => {
     fetchMock.mockRejectedValue(new Error("network down"));
 
-    await expect(fetchAssignedApplicationsForInternalUser(7)).rejects.toThrow("network down");
+    await expect(fetchAssignedApplications(7)).rejects.toThrow("network down");
   });
 });
 
-describe("fetchConnectionsForInternalUser", () => {
-  it("requests /api/internal-users/7/connections with the abort signal and returns ok and data", async () => {
+describe("fetchConnectionsForAppUser", () => {
+  it("requests /api/apps-users/7/connections with the abort signal and returns ok and data", async () => {
     fetchMock.mockResolvedValue(jsonResponse({ data: [] }));
     const controller = new AbortController();
 
-    const result = await fetchConnectionsForInternalUser(7, controller.signal);
+    const result = await fetchConnectionsForAppUser(7, controller.signal);
 
-    expect(fetchMock).toHaveBeenCalledWith("/api/internal-users/7/connections", {
+    expect(fetchMock).toHaveBeenCalledWith("/api/apps-users/7/connections", {
       signal: controller.signal,
     });
     expect(result).toEqual({ ok: true, data: { data: [] } });
@@ -112,7 +112,7 @@ describe("fetchConnectionsForInternalUser", () => {
   it("returns ok false with the error body on failure", async () => {
     fetchMock.mockResolvedValue(jsonResponse({ message: "boom" }, 500));
 
-    const result = await fetchConnectionsForInternalUser(7);
+    const result = await fetchConnectionsForAppUser(7);
 
     expect(result).toEqual({ ok: false, data: { message: "boom" } });
   });
@@ -120,7 +120,7 @@ describe("fetchConnectionsForInternalUser", () => {
   it("returns null data when the body is not JSON", async () => {
     fetchMock.mockResolvedValue(new Response("oops", { status: 502 }));
 
-    const result = await fetchConnectionsForInternalUser(7);
+    const result = await fetchConnectionsForAppUser(7);
 
     expect(result).toEqual({ ok: false, data: null });
   });
@@ -128,18 +128,18 @@ describe("fetchConnectionsForInternalUser", () => {
   it("propagates network failures", async () => {
     fetchMock.mockRejectedValue(new Error("network down"));
 
-    await expect(fetchConnectionsForInternalUser(7)).rejects.toThrow("network down");
+    await expect(fetchConnectionsForAppUser(7)).rejects.toThrow("network down");
   });
 });
 
-describe("postInternalUser", () => {
-  it("POSTs the JSON payload to /api/internal-users", async () => {
+describe("postAppUser", () => {
+  it("POSTs the JSON payload to /api/apps-users", async () => {
     fetchMock.mockResolvedValue(jsonResponse({ ok: true }, 201));
-    const payload = { name: "Ana", lastname: "Gil", email: "a@b.com", password: "secret" };
+    const payload = { name: "svc", description: "desc" };
 
-    const result = await postInternalUser(payload);
+    const result = await postAppUser(payload);
 
-    expect(fetchMock).toHaveBeenCalledWith("/api/internal-users", {
+    expect(fetchMock).toHaveBeenCalledWith("/api/apps-users", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -150,7 +150,7 @@ describe("postInternalUser", () => {
   it("returns ok false with the error body on failure", async () => {
     fetchMock.mockResolvedValue(jsonResponse({ message: "boom" }, 400));
 
-    const result = await postInternalUser({ name: "Ana", lastname: "Gil", email: "a@b.com", password: "secret" });
+    const result = await postAppUser({ name: "svc", description: "desc" });
 
     expect(result).toEqual({ ok: false, data: { message: "boom" } });
   });
@@ -158,7 +158,7 @@ describe("postInternalUser", () => {
   it("returns null data when the body is not JSON", async () => {
     fetchMock.mockResolvedValue(new Response("oops", { status: 500 }));
 
-    const result = await postInternalUser({ name: "Ana", lastname: "Gil", email: "a@b.com", password: "secret" });
+    const result = await postAppUser({ name: "svc", description: "desc" });
 
     expect(result).toEqual({ ok: false, data: null });
   });
@@ -166,18 +166,18 @@ describe("postInternalUser", () => {
   it("propagates network failures", async () => {
     fetchMock.mockRejectedValue(new Error("network down"));
 
-    await expect(postInternalUser({ name: "Ana", lastname: "Gil", email: "a@b.com", password: "secret" })).rejects.toThrow("network down");
+    await expect(postAppUser({ name: "svc", description: "desc" })).rejects.toThrow("network down");
   });
 });
 
-describe("postConnectionForInternalUser", () => {
-  it("POSTs the JSON payload to /api/internal-users/7/connections", async () => {
+describe("postConnectionForAppUser", () => {
+  it("POSTs the JSON payload to /api/apps-users/7/connections", async () => {
     fetchMock.mockResolvedValue(jsonResponse({ ok: true }, 201));
     const payload = { originApplicationId: 1, destinationApplicationId: 2 };
 
-    const result = await postConnectionForInternalUser(7, payload);
+    const result = await postConnectionForAppUser(7, payload);
 
-    expect(fetchMock).toHaveBeenCalledWith("/api/internal-users/7/connections", {
+    expect(fetchMock).toHaveBeenCalledWith("/api/apps-users/7/connections", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -188,7 +188,7 @@ describe("postConnectionForInternalUser", () => {
   it("returns ok false with the error body on failure", async () => {
     fetchMock.mockResolvedValue(jsonResponse({ message: "boom" }, 400));
 
-    const result = await postConnectionForInternalUser(7, { originApplicationId: 1, destinationApplicationId: 2 });
+    const result = await postConnectionForAppUser(7, { originApplicationId: 1, destinationApplicationId: 2 });
 
     expect(result).toEqual({ ok: false, data: { message: "boom" } });
   });
@@ -196,7 +196,7 @@ describe("postConnectionForInternalUser", () => {
   it("returns null data when the body is not JSON", async () => {
     fetchMock.mockResolvedValue(new Response("oops", { status: 500 }));
 
-    const result = await postConnectionForInternalUser(7, { originApplicationId: 1, destinationApplicationId: 2 });
+    const result = await postConnectionForAppUser(7, { originApplicationId: 1, destinationApplicationId: 2 });
 
     expect(result).toEqual({ ok: false, data: null });
   });
@@ -204,18 +204,18 @@ describe("postConnectionForInternalUser", () => {
   it("propagates network failures", async () => {
     fetchMock.mockRejectedValue(new Error("network down"));
 
-    await expect(postConnectionForInternalUser(7, { originApplicationId: 1, destinationApplicationId: 2 })).rejects.toThrow("network down");
+    await expect(postConnectionForAppUser(7, { originApplicationId: 1, destinationApplicationId: 2 })).rejects.toThrow("network down");
   });
 });
 
-describe("postAssignApplicationToInternalUser", () => {
-  it("POSTs the JSON payload to /api/internal-users/7/applications", async () => {
+describe("postAssignApplicationToAppUser", () => {
+  it("POSTs the JSON payload to /api/apps-users/7/applications", async () => {
     fetchMock.mockResolvedValue(jsonResponse({ ok: true }, 201));
     const payload = { applicationId: 2 };
 
-    const result = await postAssignApplicationToInternalUser(7, payload);
+    const result = await postAssignApplicationToAppUser(7, payload);
 
-    expect(fetchMock).toHaveBeenCalledWith("/api/internal-users/7/applications", {
+    expect(fetchMock).toHaveBeenCalledWith("/api/apps-users/7/applications", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -226,7 +226,7 @@ describe("postAssignApplicationToInternalUser", () => {
   it("returns ok false with the error body on failure", async () => {
     fetchMock.mockResolvedValue(jsonResponse({ message: "boom" }, 400));
 
-    const result = await postAssignApplicationToInternalUser(7, { applicationId: 2 });
+    const result = await postAssignApplicationToAppUser(7, { applicationId: 2 });
 
     expect(result).toEqual({ ok: false, data: { message: "boom" } });
   });
@@ -234,7 +234,7 @@ describe("postAssignApplicationToInternalUser", () => {
   it("returns null data when the body is not JSON", async () => {
     fetchMock.mockResolvedValue(new Response("oops", { status: 500 }));
 
-    const result = await postAssignApplicationToInternalUser(7, { applicationId: 2 });
+    const result = await postAssignApplicationToAppUser(7, { applicationId: 2 });
 
     expect(result).toEqual({ ok: false, data: null });
   });
@@ -242,18 +242,18 @@ describe("postAssignApplicationToInternalUser", () => {
   it("propagates network failures", async () => {
     fetchMock.mockRejectedValue(new Error("network down"));
 
-    await expect(postAssignApplicationToInternalUser(7, { applicationId: 2 })).rejects.toThrow("network down");
+    await expect(postAssignApplicationToAppUser(7, { applicationId: 2 })).rejects.toThrow("network down");
   });
 });
 
-describe("postAssignRoleToInternalUser", () => {
-  it("POSTs the JSON payload to /api/internal-users/7/roles", async () => {
+describe("postAssignRoleToAppUser", () => {
+  it("POSTs the JSON payload to /api/apps-users/7/roles", async () => {
     fetchMock.mockResolvedValue(jsonResponse({ ok: true }, 201));
     const payload = { roleId: 3 };
 
-    const result = await postAssignRoleToInternalUser(7, payload);
+    const result = await postAssignRoleToAppUser(7, payload);
 
-    expect(fetchMock).toHaveBeenCalledWith("/api/internal-users/7/roles", {
+    expect(fetchMock).toHaveBeenCalledWith("/api/apps-users/7/roles", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -264,7 +264,7 @@ describe("postAssignRoleToInternalUser", () => {
   it("returns ok false with the error body on failure", async () => {
     fetchMock.mockResolvedValue(jsonResponse({ message: "boom" }, 400));
 
-    const result = await postAssignRoleToInternalUser(7, { roleId: 3 });
+    const result = await postAssignRoleToAppUser(7, { roleId: 3 });
 
     expect(result).toEqual({ ok: false, data: { message: "boom" } });
   });
@@ -272,7 +272,7 @@ describe("postAssignRoleToInternalUser", () => {
   it("returns null data when the body is not JSON", async () => {
     fetchMock.mockResolvedValue(new Response("oops", { status: 500 }));
 
-    const result = await postAssignRoleToInternalUser(7, { roleId: 3 });
+    const result = await postAssignRoleToAppUser(7, { roleId: 3 });
 
     expect(result).toEqual({ ok: false, data: null });
   });
@@ -280,6 +280,6 @@ describe("postAssignRoleToInternalUser", () => {
   it("propagates network failures", async () => {
     fetchMock.mockRejectedValue(new Error("network down"));
 
-    await expect(postAssignRoleToInternalUser(7, { roleId: 3 })).rejects.toThrow("network down");
+    await expect(postAssignRoleToAppUser(7, { roleId: 3 })).rejects.toThrow("network down");
   });
 });

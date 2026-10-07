@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   fetchRolesByApplication,
   postRole,
-} from "./role.connector";
+} from "../role.connector";
 
 const fetchMock = vi.fn();
 

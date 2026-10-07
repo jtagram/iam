@@ -2,11 +2,11 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { getApplications } from "@/app/features/application/application.service";
-import { assignApplicationToInternalUser, getInternalUsers } from "./internal-user.service";
-import { AssignApplicationToInternalUserForm } from "./assign-application-to-internal-user-form";
+import { assignApplicationToInternalUser, getInternalUsers } from "../internal-user.service";
+import { AssignApplicationToInternalUserForm } from "../assign-application-to-internal-user-form";
 
 vi.mock("@/app/features/application/application.service");
-vi.mock("./internal-user.service");
+vi.mock("../internal-user.service");
 
 beforeEach(() => {
   vi.mocked(getInternalUsers).mockResolvedValue([

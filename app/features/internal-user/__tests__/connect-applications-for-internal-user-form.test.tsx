@@ -6,10 +6,10 @@ import {
   getInternalUsers,
   getAssignedApplicationsForInternalUser,
   getConnectionsForInternalUser,
-} from "./internal-user.service";
-import { ConnectApplicationsForInternalUserForm } from "./connect-applications-for-internal-user-form";
+} from "../internal-user.service";
+import { ConnectApplicationsForInternalUserForm } from "../connect-applications-for-internal-user-form";
 
-vi.mock("./internal-user.service");
+vi.mock("../internal-user.service");
 
 const assigned = [
   { applicationId: 1, applicationName: "billing", applicationDescription: "d", roles: [] },

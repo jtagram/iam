@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   fetchApplications,
   postApplication,
-} from "./application.connector";
+} from "../application.connector";
 
 const fetchMock = vi.fn();
 

@@ -6,10 +6,10 @@ import {
   getAppUsers,
   getAssignedApplicationsForAppUser,
   getConnectionsForAppUser,
-} from "./app-user.service";
-import { ConnectApplicationsForAppUserForm } from "./connect-applications-for-app-user-form";
+} from "../app-user.service";
+import { ConnectApplicationsForAppUserForm } from "../connect-applications-for-app-user-form";
 
-vi.mock("./app-user.service");
+vi.mock("../app-user.service");
 
 const assigned = [
   { applicationId: 1, applicationName: "billing", applicationDescription: "d", roles: [] },

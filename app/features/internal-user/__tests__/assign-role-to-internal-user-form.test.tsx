@@ -3,12 +3,12 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { getApplications } from "@/app/features/application/application.service";
 import { getRolesByApplication } from "@/app/features/role/role.service";
-import { assignRoleToInternalUser, getInternalUsers } from "./internal-user.service";
-import { AssignRoleToInternalUserForm } from "./assign-role-to-internal-user-form";
+import { assignRoleToInternalUser, getInternalUsers } from "../internal-user.service";
+import { AssignRoleToInternalUserForm } from "../assign-role-to-internal-user-form";
 
 vi.mock("@/app/features/application/application.service");
 vi.mock("@/app/features/role/role.service");
-vi.mock("./internal-user.service");
+vi.mock("../internal-user.service");
 
 beforeEach(() => {
   vi.mocked(getInternalUsers).mockResolvedValue([

@@ -1,10 +1,10 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { createInternalUser } from "./internal-user.service";
-import { CreateInternalUserForm } from "./create-internal-user-form";
+import { createInternalUser } from "../internal-user.service";
+import { CreateInternalUserForm } from "../create-internal-user-form";
 
-vi.mock("./internal-user.service");
+vi.mock("../internal-user.service");
 
 afterEach(() => {
   vi.resetAllMocks();

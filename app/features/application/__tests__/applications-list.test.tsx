@@ -1,9 +1,9 @@
 import { render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { getApplications } from "./application.service";
-import { ApplicationsList } from "./applications-list";
+import { getApplications } from "../application.service";
+import { ApplicationsList } from "../applications-list";
 
-vi.mock("./application.service");
+vi.mock("../application.service");
 
 afterEach(() => {
   vi.resetAllMocks();

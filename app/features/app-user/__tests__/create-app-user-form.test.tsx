@@ -1,10 +1,10 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { createAppUser } from "./app-user.service";
-import { CreateAppUserForm } from "./create-app-user-form";
+import { createAppUser } from "../app-user.service";
+import { CreateAppUserForm } from "../create-app-user-form";
 
-vi.mock("./app-user.service");
+vi.mock("../app-user.service");
 
 afterEach(() => {
   vi.resetAllMocks();

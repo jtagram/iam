@@ -2,11 +2,11 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { getApplications } from "@/app/features/application/application.service";
-import { createRole } from "./role.service";
-import { CreateRoleForm } from "./create-role-form";
+import { createRole } from "../role.service";
+import { CreateRoleForm } from "../create-role-form";
 
 vi.mock("@/app/features/application/application.service");
-vi.mock("./role.service");
+vi.mock("../role.service");
 
 beforeEach(() => {
   vi.mocked(getApplications).mockResolvedValue([

@@ -7,7 +7,7 @@ import {
   postConnectionForInternalUser,
   postAssignApplicationToInternalUser,
   postAssignRoleToInternalUser,
-} from "./internal-user.connector";
+} from "../internal-user.connector";
 import {
   getInternalUsers,
   getAssignedApplicationsForInternalUser,
@@ -16,9 +16,9 @@ import {
   createConnectionForInternalUser,
   assignApplicationToInternalUser,
   assignRoleToInternalUser,
-} from "./internal-user.service";
+} from "../internal-user.service";
 
-vi.mock("./internal-user.connector");
+vi.mock("../internal-user.connector");
 
 afterEach(() => {
   vi.resetAllMocks();
