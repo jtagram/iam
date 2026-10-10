@@ -19,12 +19,19 @@ export interface NavItem {
   label: string;
 }
 
-// Add future sidebar entries here; HomeShell renders whatever is listed.
-export const NAV_ITEMS: NavItem[] = [
+export interface NavGroup {
+  title: string;
+  items: NavItem[];
+}
+
+const APPLICATION_ITEMS: NavItem[] = [
   { id: "create-application", label: "Crear aplicación" },
   { id: "view-applications", label: "Ver aplicaciones" },
   { id: "create-role", label: "Crear rol de aplicación" },
   { id: "view-application-roles", label: "Ver roles de aplicaciones" },
+];
+
+const APP_USER_ITEMS: NavItem[] = [
   { id: "create-app-user", label: "Crear usuario de aplicación" },
   {
     id: "assign-application-to-app-user",
@@ -39,6 +46,9 @@ export const NAV_ITEMS: NavItem[] = [
     label: "Relacionar aplicaciones para usuarios de aplicación",
   },
   { id: "view-app-users", label: "Ver usuarios de aplicación" },
+];
+
+const INTERNAL_USER_ITEMS: NavItem[] = [
   { id: "create-internal-user", label: "Crear usuario interno" },
   {
     id: "assign-application-to-internal-user",
@@ -54,3 +64,12 @@ export const NAV_ITEMS: NavItem[] = [
   },
   { id: "view-internal-users", label: "Ver usuarios internos" },
 ];
+
+// Add future sidebar entries to a group here; HomeShell renders whatever is listed.
+export const NAV_GROUPS: NavGroup[] = [
+  { title: "Aplicaciones", items: APPLICATION_ITEMS },
+  { title: "Usuarios de aplicación", items: APP_USER_ITEMS },
+  { title: "Usuarios internos", items: INTERNAL_USER_ITEMS },
+];
+
+export const NAV_ITEMS: NavItem[] = NAV_GROUPS.flatMap((group) => group.items);
