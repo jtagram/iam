@@ -7,7 +7,7 @@ import {
   invalidIdResponse,
   isValidId,
   readIamBody,
-} from "./iam-proxy";
+} from "../iam-proxy";
 
 const cookieGet = vi.fn();
 
@@ -61,7 +61,7 @@ describe("isValidId / invalidIdResponse", () => {
     expect(isValidId(id)).toBe(true);
   });
 
-  it.each(["", "abc", "-1", "1.5", "1/2", "7?x=1", " 7", "7\n", "../1"])(
+  it.each(["", "abc", "-1", "1.5", "1/2", "7?x=1", " 7", "7\n", "../../1"])(
     "rejects %j",
     (id) => {
       expect(isValidId(id)).toBe(false);

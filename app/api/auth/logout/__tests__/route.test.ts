@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { AUTH_COOKIE_NAME } from "@/app/lib/auth-cookie";
-import { POST } from "./route";
+import { POST } from "../route";
 
 const cookieDelete = vi.fn();
 

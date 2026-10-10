@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { requireEnv } from "./require-env";
+import { requireEnv } from "../require-env";
 
 describe("requireEnv", () => {
   it("returns the value when it is set", () => {

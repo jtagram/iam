@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { NextRequest } from "next/server";
 import { AUTH_COOKIE_NAME } from "@/app/lib/auth-cookie";
-import { config, proxy } from "./proxy";
+import { config, proxy } from "../proxy";
 
 function requestWithCookie(token?: string) {
   return new NextRequest("http://localhost/", {

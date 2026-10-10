@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { jsonRequest, iamResponse } from "@/test/mocks/iam";
-import { GET, POST } from "./route";
+import { GET, POST } from "../route";
 
 const cookieGet = vi.fn();
 

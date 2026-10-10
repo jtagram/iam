@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { NAV_ITEMS } from "@/app/lib/nav-items";
-import { HomeShell } from "./home-shell";
+import { HomeShell } from "../home-shell";
 
 vi.mock("@/app/features/application/create-application-form", () => ({
   CreateApplicationForm: () => <div>stub:create-application</div>,

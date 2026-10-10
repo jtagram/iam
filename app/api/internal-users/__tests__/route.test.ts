@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { jsonRequest, iamResponse } from "@/test/mocks/iam";
-import { GET, POST } from "./route";
+import { GET, POST } from "../route";
 
 const cookieGet = vi.fn();
 
@@ -22,7 +22,7 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
-describe("GET /api/apps-users", () => {
+describe("GET /api/internal-users", () => {
   it("throws when IAM_API_URL is missing", async () => {
     vi.stubEnv("IAM_API_URL", "");
 
@@ -65,7 +65,7 @@ describe("GET /api/apps-users", () => {
 
     expect(res.status).toBe(500);
     expect(await res.json()).toEqual({
-      message: "No se pudieron obtener los usuarios de aplicación.",
+      message: "No se pudieron obtener los usuarios internos.",
     });
   });
 
@@ -77,7 +77,7 @@ describe("GET /api/apps-users", () => {
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ data: [{ id: 1 }] });
     expect(fetchMock).toHaveBeenCalledWith(
-      "http://iam.test/apps-users",
+      "http://iam.test/internal-users",
       expect.objectContaining({
         method: "GET",
         headers: { Authorization: "Bearer tok123" },
@@ -86,11 +86,11 @@ describe("GET /api/apps-users", () => {
   });
 });
 
-describe("POST /api/apps-users", () => {
+describe("POST /api/internal-users", () => {
   it("throws when IAM_API_URL is missing", async () => {
     vi.stubEnv("IAM_API_URL", "");
 
-    await expect(POST(jsonRequest("http://localhost/api", "POST", { name: "svc", description: "desc" }))).rejects.toThrow(
+    await expect(POST(jsonRequest("http://localhost/api", "POST", { name: "Ana", lastname: "Gil", email: "a@b.com", password: "secret" }))).rejects.toThrow(
       "IAM_API_URL environment variable is required",
     );
   });
@@ -98,7 +98,7 @@ describe("POST /api/apps-users", () => {
   it("returns 401 when there is no auth cookie", async () => {
     cookieGet.mockReturnValue(undefined);
 
-    const res = await POST(jsonRequest("http://localhost/api", "POST", { name: "svc", description: "desc" }));
+    const res = await POST(jsonRequest("http://localhost/api", "POST", { name: "Ana", lastname: "Gil", email: "a@b.com", password: "secret" }));
 
     expect(res.status).toBe(401);
     expect(await res.json()).toEqual({ message: "No autenticado." });
@@ -118,7 +118,7 @@ describe("POST /api/apps-users", () => {
   it("forwards the IAM error status and message", async () => {
     fetchMock.mockResolvedValue(iamResponse({ message: "Forbidden" }, 403));
 
-    const res = await POST(jsonRequest("http://localhost/api", "POST", { name: "svc", description: "desc" }));
+    const res = await POST(jsonRequest("http://localhost/api", "POST", { name: "Ana", lastname: "Gil", email: "a@b.com", password: "secret" }));
 
     expect(res.status).toBe(403);
     expect(await res.json()).toEqual({ message: "Forbidden" });
@@ -127,7 +127,7 @@ describe("POST /api/apps-users", () => {
   it("joins array messages from IAM", async () => {
     fetchMock.mockResolvedValue(iamResponse({ message: ["one", "two"] }, 400));
 
-    const res = await POST(jsonRequest("http://localhost/api", "POST", { name: "svc", description: "desc" }));
+    const res = await POST(jsonRequest("http://localhost/api", "POST", { name: "Ana", lastname: "Gil", email: "a@b.com", password: "secret" }));
 
     expect(await res.json()).toEqual({ message: "one, two" });
   });
@@ -135,43 +135,43 @@ describe("POST /api/apps-users", () => {
   it("uses a fallback message when IAM sends none", async () => {
     fetchMock.mockResolvedValue(iamResponse({}, 500));
 
-    const res = await POST(jsonRequest("http://localhost/api", "POST", { name: "svc", description: "desc" }));
+    const res = await POST(jsonRequest("http://localhost/api", "POST", { name: "Ana", lastname: "Gil", email: "a@b.com", password: "secret" }));
 
     expect(res.status).toBe(500);
     expect(await res.json()).toEqual({
-      message: "No se pudo crear el usuario de aplicación.",
+      message: "No se pudo crear el usuario interno.",
     });
   });
 
   it("forwards only the expected fields to IAM and returns its response", async () => {
     fetchMock.mockResolvedValue(iamResponse({ data: { id: 9 } }, 201));
 
-    const res = await POST(jsonRequest("http://localhost/api", "POST", { ...{ name: "svc", description: "desc" }, extra: "ignored" }));
+    const res = await POST(jsonRequest("http://localhost/api", "POST", { ...{ name: "Ana", lastname: "Gil", email: "a@b.com", password: "secret" }, extra: "ignored" }));
 
     expect(res.status).toBe(201);
     expect(await res.json()).toEqual({ data: { id: 9 } });
     expect(fetchMock).toHaveBeenCalledWith(
-      "http://iam.test/apps-users",
+      "http://iam.test/internal-users",
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: "Bearer tok123",
         },
-        body: JSON.stringify({ name: "svc", description: "desc" }),
+        body: JSON.stringify({ name: "Ana", lastname: "Gil", email: "a@b.com", password: "secret" }),
       },
     );
   });
 });
 
-describe("GET /api/apps-users robustness", () => {
+describe("GET /api/internal-users robustness", () => {
   it("forwards IAM's status with the fallback message when an error body is not JSON", async () => {
     fetchMock.mockResolvedValue(new Response("<html>Bad Gateway</html>", { status: 503 }));
 
     const res = await GET();
 
     expect(res.status).toBe(503);
-    expect(await res.json()).toEqual({ message: "No se pudieron obtener los usuarios de aplicación." });
+    expect(await res.json()).toEqual({ message: "No se pudieron obtener los usuarios internos." });
   });
 
   it("returns 502 with the fallback message when a successful IAM response is not JSON", async () => {
@@ -180,26 +180,26 @@ describe("GET /api/apps-users robustness", () => {
     const res = await GET();
 
     expect(res.status).toBe(502);
-    expect(await res.json()).toEqual({ message: "No se pudieron obtener los usuarios de aplicación." });
+    expect(await res.json()).toEqual({ message: "No se pudieron obtener los usuarios internos." });
   });
 });
 
-describe("POST /api/apps-users robustness", () => {
+describe("POST /api/internal-users robustness", () => {
   it("forwards IAM's status with the fallback message when an error body is not JSON", async () => {
     fetchMock.mockResolvedValue(new Response("<html>Bad Gateway</html>", { status: 503 }));
 
-    const res = await POST(jsonRequest("http://localhost/api/apps-users", "POST", {"name": "a"}));
+    const res = await POST(jsonRequest("http://localhost/api/internal-users", "POST", {"name": "a"}));
 
     expect(res.status).toBe(503);
-    expect(await res.json()).toEqual({ message: "No se pudo crear el usuario de aplicación." });
+    expect(await res.json()).toEqual({ message: "No se pudo crear el usuario interno." });
   });
 
   it("returns 502 with the fallback message when a successful IAM response is not JSON", async () => {
     fetchMock.mockResolvedValue(new Response("not json", { status: 200 }));
 
-    const res = await POST(jsonRequest("http://localhost/api/apps-users", "POST", {"name": "a"}));
+    const res = await POST(jsonRequest("http://localhost/api/internal-users", "POST", {"name": "a"}));
 
     expect(res.status).toBe(502);
-    expect(await res.json()).toEqual({ message: "No se pudo crear el usuario de aplicación." });
+    expect(await res.json()).toEqual({ message: "No se pudo crear el usuario interno." });
   });
 });
