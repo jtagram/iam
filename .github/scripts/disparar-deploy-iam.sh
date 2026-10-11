@@ -8,12 +8,12 @@
 #
 # Uso: disparar-deploy-iam.sh <owner> <tag-de-imagen> [workflow-de-deploy]
 #   workflow-de-deploy: archivo del workflow en deploy-hub-api (por defecto
-#   deploy-iam.yml; el release dev usa deploy-iam-dev.yml)
+#   deploy-iam-prod.yml; el release dev usa deploy-iam-dev.yml)
 set -euo pipefail
 
 OWNER="${1-}"
 IMAGE_TAG="${2-}"
-DEPLOY_WORKFLOW="${3:-deploy-iam.yml}"
+DEPLOY_WORKFLOW="${3:-deploy-iam-prod.yml}"
 
 if [ -z "$OWNER" ]; then
   echo "disparar-deploy-iam: se esperaba el owner del repositorio como primer argumento" >&2
