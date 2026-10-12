@@ -26,5 +26,5 @@ aplicación "iam".
 ### `IAM_TARGET_APPLICATION_NAME`
 
 Nombre de la aplicación destino a la que apunta el login. Se envía en el
-header `x-target-application` junto con `x-application-name` (la aplicación
+header `x-target-application` junto con `x-origin-application` (la aplicación
 origen).

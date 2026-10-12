@@ -98,7 +98,7 @@ describe("POST /api/auth/login", () => {
       expect.objectContaining({
         method: "POST",
         headers: expect.objectContaining({
-          "x-application-name": "iam-app",
+          "x-origin-application": "iam-app",
           "x-target-application": "target-app",
         }),
       }),

@@ -50,7 +50,7 @@ export async function POST(request: Request) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "x-application-name": IAM_APPLICATION_NAME,
+      "x-origin-application": IAM_APPLICATION_NAME,
       "x-target-application": IAM_TARGET_APPLICATION_NAME,
     },
     body: JSON.stringify({ email, password }),
