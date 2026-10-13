@@ -1,170 +1,159 @@
 import {
-  fetchAssignedApplicationsForInternalUser,
-  fetchConnectionsForInternalUser,
-  fetchInternalUsers,
-  postAssignApplicationToInternalUser,
-  postConnectionForInternalUser,
-  postAssignRoleToInternalUser,
-  postInternalUser,
-} from "@/app/features/internal-user/internal-user.connector";
+	fetchAssignedApplicationsForInternalUser,
+	fetchConnectionsForInternalUser,
+	fetchInternalUsers,
+	postAssignApplicationToInternalUser,
+	postAssignRoleToInternalUser,
+	postConnectionForInternalUser,
+	postInternalUser,
+} from '@/app/features/internal-user/internal-user.connector';
 import type {
-  ApplicationConnection,
-  AssignApplicationToInternalUserPayload,
-  AssignedApplication,
-  AssignResult,
-  AssignRoleToInternalUserPayload,
-  CreateConnectionPayload,
-  CreateConnectionResult,
-  CreateInternalUserPayload,
-  CreateInternalUserResult,
-  CreatedInternalUser,
-  ErrorResponse,
-  FetchAssignedApplicationsResult,
-  FetchConnectionsResult,
-  FetchInternalUsersResult,
-  InternalUser,
-} from "@/app/features/internal-user/internal-user.dto";
+	ApplicationConnection,
+	AssignApplicationToInternalUserPayload,
+	AssignedApplication,
+	AssignResult,
+	AssignRoleToInternalUserPayload,
+	CreateConnectionPayload,
+	CreateConnectionResult,
+	CreatedInternalUser,
+	CreateInternalUserPayload,
+	CreateInternalUserResult,
+	ErrorResponse,
+	FetchAssignedApplicationsResult,
+	FetchConnectionsResult,
+	FetchInternalUsersResult,
+	InternalUser,
+} from '@/app/features/internal-user/internal-user.dto';
 
-export async function getInternalUsers(
-  signal?: AbortSignal,
-): Promise<InternalUser[]> {
-  let result: FetchInternalUsersResult;
-  try {
-    result = await fetchInternalUsers(signal);
-  } catch (err) {
-    if (signal?.aborted) {
-      throw err;
-    }
-    throw new Error("No se pudo conectar con el servidor.");
-  }
+export async function getInternalUsers(signal?: AbortSignal): Promise<InternalUser[]> {
+	let result: FetchInternalUsersResult;
+	try {
+		result = await fetchInternalUsers(signal);
+	} catch (err) {
+		if (signal?.aborted) {
+			throw err;
+		}
+		throw new Error('No se pudo conectar con el servidor.');
+	}
 
-  if (!result.ok) {
-    throw new Error(
-      (result.data as ErrorResponse | null)?.message ??
-        "No se pudieron obtener los usuarios internos.",
-    );
-  }
+	if (!result.ok) {
+		throw new Error(
+			(result.data as ErrorResponse | null)?.message ??
+				'No se pudieron obtener los usuarios internos.',
+		);
+	}
 
-  return (result.data as InternalUser[]) ?? [];
+	return (result.data as InternalUser[]) ?? [];
 }
 
 export async function getAssignedApplicationsForInternalUser(
-  internalUserId: number | string,
-  signal?: AbortSignal,
+	internalUserId: number | string,
+	signal?: AbortSignal,
 ): Promise<AssignedApplication[]> {
-  let result: FetchAssignedApplicationsResult;
-  try {
-    result = await fetchAssignedApplicationsForInternalUser(
-      internalUserId,
-      signal,
-    );
-  } catch (err) {
-    if (signal?.aborted) {
-      throw err;
-    }
-    throw new Error("No se pudo conectar con el servidor.");
-  }
+	let result: FetchAssignedApplicationsResult;
+	try {
+		result = await fetchAssignedApplicationsForInternalUser(internalUserId, signal);
+	} catch (err) {
+		if (signal?.aborted) {
+			throw err;
+		}
+		throw new Error('No se pudo conectar con el servidor.');
+	}
 
-  if (!result.ok) {
-    throw new Error(
-      (result.data as ErrorResponse | null)?.message ??
-        "No se pudieron obtener las aplicaciones asignadas.",
-    );
-  }
+	if (!result.ok) {
+		throw new Error(
+			(result.data as ErrorResponse | null)?.message ??
+				'No se pudieron obtener las aplicaciones asignadas.',
+		);
+	}
 
-  return (result.data as AssignedApplication[]) ?? [];
+	return (result.data as AssignedApplication[]) ?? [];
 }
 
 export async function getConnectionsForInternalUser(
-  internalUserId: number | string,
-  signal?: AbortSignal,
+	internalUserId: number | string,
+	signal?: AbortSignal,
 ): Promise<ApplicationConnection[]> {
-  let result: FetchConnectionsResult;
-  try {
-    result = await fetchConnectionsForInternalUser(internalUserId, signal);
-  } catch (err) {
-    if (signal?.aborted) {
-      throw err;
-    }
-    throw new Error("No se pudo conectar con el servidor.");
-  }
+	let result: FetchConnectionsResult;
+	try {
+		result = await fetchConnectionsForInternalUser(internalUserId, signal);
+	} catch (err) {
+		if (signal?.aborted) {
+			throw err;
+		}
+		throw new Error('No se pudo conectar con el servidor.');
+	}
 
-  if (!result.ok) {
-    throw new Error(
-      (result.data as ErrorResponse | null)?.message ??
-        "No se pudieron obtener las conexiones.",
-    );
-  }
+	if (!result.ok) {
+		throw new Error(
+			(result.data as ErrorResponse | null)?.message ?? 'No se pudieron obtener las conexiones.',
+		);
+	}
 
-  return (result.data as ApplicationConnection[]) ?? [];
+	return (result.data as ApplicationConnection[]) ?? [];
 }
 
 export async function createConnectionForInternalUser(
-  internalUserId: number | string,
-  payload: CreateConnectionPayload,
+	internalUserId: number | string,
+	payload: CreateConnectionPayload,
 ): Promise<void> {
-  let result: CreateConnectionResult;
-  try {
-    result = await postConnectionForInternalUser(internalUserId, payload);
-  } catch {
-    throw new Error("No se pudo conectar con el servidor.");
-  }
+	let result: CreateConnectionResult;
+	try {
+		result = await postConnectionForInternalUser(internalUserId, payload);
+	} catch {
+		throw new Error('No se pudo conectar con el servidor.');
+	}
 
-  if (!result.ok) {
-    throw new Error(result.data?.message ?? "No se pudo crear la conexión.");
-  }
+	if (!result.ok) {
+		throw new Error(result.data?.message ?? 'No se pudo crear la conexión.');
+	}
 }
 
 export async function createInternalUser(
-  payload: CreateInternalUserPayload,
+	payload: CreateInternalUserPayload,
 ): Promise<Partial<CreatedInternalUser>> {
-  let result: CreateInternalUserResult;
-  try {
-    result = await postInternalUser(payload);
-  } catch {
-    throw new Error("No se pudo conectar con el servidor.");
-  }
+	let result: CreateInternalUserResult;
+	try {
+		result = await postInternalUser(payload);
+	} catch {
+		throw new Error('No se pudo conectar con el servidor.');
+	}
 
-  if (!result.ok) {
-    throw new Error(
-      result.data?.message ?? "No se pudo crear el usuario interno.",
-    );
-  }
+	if (!result.ok) {
+		throw new Error(result.data?.message ?? 'No se pudo crear el usuario interno.');
+	}
 
-  return result.data ?? {};
+	return result.data ?? {};
 }
 
 export async function assignApplicationToInternalUser(
-  internalUserId: number | string,
-  payload: AssignApplicationToInternalUserPayload,
+	internalUserId: number | string,
+	payload: AssignApplicationToInternalUserPayload,
 ): Promise<void> {
-  let result: AssignResult;
-  try {
-    result = await postAssignApplicationToInternalUser(
-      internalUserId,
-      payload,
-    );
-  } catch {
-    throw new Error("No se pudo conectar con el servidor.");
-  }
+	let result: AssignResult;
+	try {
+		result = await postAssignApplicationToInternalUser(internalUserId, payload);
+	} catch {
+		throw new Error('No se pudo conectar con el servidor.');
+	}
 
-  if (!result.ok) {
-    throw new Error(result.data?.message ?? "No se pudo asignar la aplicación.");
-  }
+	if (!result.ok) {
+		throw new Error(result.data?.message ?? 'No se pudo asignar la aplicación.');
+	}
 }
 
 export async function assignRoleToInternalUser(
-  internalUserId: number | string,
-  payload: AssignRoleToInternalUserPayload,
+	internalUserId: number | string,
+	payload: AssignRoleToInternalUserPayload,
 ): Promise<void> {
-  let result: AssignResult;
-  try {
-    result = await postAssignRoleToInternalUser(internalUserId, payload);
-  } catch {
-    throw new Error("No se pudo conectar con el servidor.");
-  }
+	let result: AssignResult;
+	try {
+		result = await postAssignRoleToInternalUser(internalUserId, payload);
+	} catch {
+		throw new Error('No se pudo conectar con el servidor.');
+	}
 
-  if (!result.ok) {
-    throw new Error(result.data?.message ?? "No se pudo asignar el rol.");
-  }
+	if (!result.ok) {
+		throw new Error(result.data?.message ?? 'No se pudo asignar el rol.');
+	}
 }
