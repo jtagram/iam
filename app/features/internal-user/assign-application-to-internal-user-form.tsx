@@ -96,8 +96,11 @@ export function AssignApplicationToInternalUserForm() {
 					className='mb-3'
 					controlId='assignApplicationInternalUserId'
 				>
-					<Form.Label>Usuario interno</Form.Label>
-					<Form.Select {...register('internalUserId', { required: true })}>
+					<Form.Label className='required-label'>Usuario interno</Form.Label>
+					<Form.Select
+						aria-required='true'
+						{...register('internalUserId', { required: true })}
+					>
 						<option
 							value=''
 							disabled
@@ -130,8 +133,11 @@ export function AssignApplicationToInternalUserForm() {
 					className='mb-4'
 					controlId='assignApplicationToInternalUserApplicationId'
 				>
-					<Form.Label>Aplicación</Form.Label>
-					<Form.Select {...register('applicationId', { required: true })}>
+					<Form.Label className='required-label'>Aplicación</Form.Label>
+					<Form.Select
+						aria-required='true'
+						{...register('applicationId', { required: true })}
+					>
 						<option
 							value=''
 							disabled

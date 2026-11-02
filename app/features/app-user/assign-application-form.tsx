@@ -93,8 +93,11 @@ export function AssignApplicationForm() {
 					className='mb-3'
 					controlId='assignApplicationAppUserId'
 				>
-					<Form.Label>Usuario de aplicación</Form.Label>
-					<Form.Select {...register('appUserId', { required: true })}>
+					<Form.Label className='required-label'>Usuario de aplicación</Form.Label>
+					<Form.Select
+						aria-required='true'
+						{...register('appUserId', { required: true })}
+					>
 						<option
 							value=''
 							disabled
@@ -127,8 +130,11 @@ export function AssignApplicationForm() {
 					className='mb-4'
 					controlId='assignApplicationApplicationId'
 				>
-					<Form.Label>Aplicación</Form.Label>
-					<Form.Select {...register('applicationId', { required: true })}>
+					<Form.Label className='required-label'>Aplicación</Form.Label>
+					<Form.Select
+						aria-required='true'
+						{...register('applicationId', { required: true })}
+					>
 						<option
 							value=''
 							disabled

@@ -25,3 +25,9 @@ body {
   background-color: #000;
   color: #fff;
 }
+
+.required-label::after {
+  content: ' *';
+  content: ' *' / '';
+  color: var(--bs-danger);
+}

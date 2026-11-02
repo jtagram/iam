@@ -45,10 +45,9 @@ async function fillForm() {
 }
 
 describe('AssignRoleToAppUserForm', () => {
-	it('asks to pick an application before roles are available', () => {
+	it('does not load roles before an application is selected', () => {
 		render(<AssignRoleToAppUserForm />);
 
-		expect(screen.getByText('Seleccioná una aplicación primero.')).toBeInTheDocument();
 		expect(getRolesByApplication).not.toHaveBeenCalled();
 	});
 

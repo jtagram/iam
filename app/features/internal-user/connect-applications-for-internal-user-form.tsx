@@ -187,8 +187,9 @@ export function ConnectApplicationsForInternalUserForm() {
 					className='mb-3'
 					controlId='connectInternalUserId'
 				>
-					<Form.Label>Usuario interno</Form.Label>
+					<Form.Label className='required-label'>Usuario interno</Form.Label>
 					<Form.Select
+						aria-required='true'
 						{...register('internalUserId', {
 							required: true,
 							onChange: () => {
@@ -230,8 +231,9 @@ export function ConnectApplicationsForInternalUserForm() {
 					className='mb-3'
 					controlId='connectOriginApplicationId'
 				>
-					<Form.Label>Aplicación origen</Form.Label>
+					<Form.Label className='required-label'>Aplicación origen</Form.Label>
 					<Form.Select
+						aria-required='true'
 						disabled={!currentAssigned?.items}
 						{...register('originApplicationId', {
 							required: true,
@@ -253,8 +255,9 @@ export function ConnectApplicationsForInternalUserForm() {
 					className='mb-4'
 					controlId='connectDestinationApplicationId'
 				>
-					<Form.Label>Aplicación destino</Form.Label>
+					<Form.Label className='required-label'>Aplicación destino</Form.Label>
 					<Form.Select
+						aria-required='true'
 						disabled={!currentAssigned?.items}
 						{...register('destinationApplicationId', {
 							required: true,

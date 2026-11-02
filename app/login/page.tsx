@@ -64,10 +64,11 @@ export default function LoginPage() {
 							className='mb-3'
 							controlId='email'
 						>
-							<Form.Label>Correo electrónico</Form.Label>
+							<Form.Label className='required-label'>Correo electrónico</Form.Label>
 							<Form.Control
 								type='email'
 								required
+								aria-required='true'
 								autoComplete='email'
 								value={email}
 								onChange={(event) => setEmail(event.target.value)}
@@ -78,10 +79,11 @@ export default function LoginPage() {
 							className='mb-4'
 							controlId='password'
 						>
-							<Form.Label>Contraseña</Form.Label>
+							<Form.Label className='required-label'>Contraseña</Form.Label>
 							<Form.Control
 								type='password'
 								required
+								aria-required='true'
 								autoComplete='current-password'
 								value={password}
 								onChange={(event) => setPassword(event.target.value)}

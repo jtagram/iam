@@ -128,8 +128,11 @@ export function AssignRoleToAppUserForm() {
 					className='mb-3'
 					controlId='assignRoleAppUserId'
 				>
-					<Form.Label>Usuario de aplicación</Form.Label>
-					<Form.Select {...register('appUserId', { required: true })}>
+					<Form.Label className='required-label'>Usuario de aplicación</Form.Label>
+					<Form.Select
+						aria-required='true'
+						{...register('appUserId', { required: true })}
+					>
 						<option
 							value=''
 							disabled
@@ -162,8 +165,11 @@ export function AssignRoleToAppUserForm() {
 					className='mb-3'
 					controlId='assignRoleApplicationId'
 				>
-					<Form.Label>Aplicación</Form.Label>
-					<Form.Select {...register('applicationId', { required: true })}>
+					<Form.Label className='required-label'>Aplicación</Form.Label>
+					<Form.Select
+						aria-required='true'
+						{...register('applicationId', { required: true })}
+					>
 						<option
 							value=''
 							disabled
@@ -196,8 +202,11 @@ export function AssignRoleToAppUserForm() {
 					className='mb-4'
 					controlId='assignRoleRoleId'
 				>
-					<Form.Label>Rol</Form.Label>
-					<Form.Select {...register('roleId', { required: true })}>
+					<Form.Label className='required-label'>Rol</Form.Label>
+					<Form.Select
+						aria-required='true'
+						{...register('roleId', { required: true })}
+					>
 						<option
 							value=''
 							disabled
@@ -220,9 +229,6 @@ export function AssignRoleToAppUserForm() {
 						>
 							{rolesError}
 						</Alert>
-					)}
-					{!rolesError && !applicationId && (
-						<Form.Text className='text-muted'>Seleccioná una aplicación primero.</Form.Text>
 					)}
 					{!rolesError && applicationId && roles === null && (
 						<Form.Text className='text-muted'>Cargando…</Form.Text>

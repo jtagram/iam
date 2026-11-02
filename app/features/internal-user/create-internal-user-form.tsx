@@ -55,9 +55,10 @@ export function CreateInternalUserForm() {
 					className='mb-3'
 					controlId='createInternalUserName'
 				>
-					<Form.Label>Nombre</Form.Label>
+					<Form.Label className='required-label'>Nombre</Form.Label>
 					<Form.Control
 						type='text'
+						aria-required='true'
 						{...register('name', {
 							required: 'Este campo es obligatorio.',
 							maxLength: { value: 15, message: 'Máximo 15 caracteres.' },
@@ -70,9 +71,10 @@ export function CreateInternalUserForm() {
 					className='mb-3'
 					controlId='createInternalUserLastname'
 				>
-					<Form.Label>Apellido</Form.Label>
+					<Form.Label className='required-label'>Apellido</Form.Label>
 					<Form.Control
 						type='text'
+						aria-required='true'
 						{...register('lastname', {
 							required: 'Este campo es obligatorio.',
 							maxLength: { value: 15, message: 'Máximo 15 caracteres.' },
@@ -87,9 +89,10 @@ export function CreateInternalUserForm() {
 					className='mb-3'
 					controlId='createInternalUserEmail'
 				>
-					<Form.Label>Correo electrónico</Form.Label>
+					<Form.Label className='required-label'>Correo electrónico</Form.Label>
 					<Form.Control
 						type='email'
+						aria-required='true'
 						autoComplete='off'
 						{...register('email', {
 							required: 'Este campo es obligatorio.',
@@ -103,9 +106,10 @@ export function CreateInternalUserForm() {
 					className='mb-4'
 					controlId='createInternalUserPassword'
 				>
-					<Form.Label>Contraseña</Form.Label>
+					<Form.Label className='required-label'>Contraseña</Form.Label>
 					<Form.Control
 						type='password'
+						aria-required='true'
 						autoComplete='new-password'
 						{...register('password', {
 							required: 'Este campo es obligatorio.',
@@ -119,10 +123,8 @@ export function CreateInternalUserForm() {
 							},
 						})}
 					/>
-					{errors.password ? (
+					{errors.password && (
 						<Form.Text className='text-danger'>{errors.password.message}</Form.Text>
-					) : (
-						<Form.Text className='text-muted'>Entre 8 y 72 caracteres.</Form.Text>
 					)}
 				</Form.Group>
 

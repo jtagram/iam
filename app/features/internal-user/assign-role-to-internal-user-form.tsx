@@ -131,8 +131,11 @@ export function AssignRoleToInternalUserForm() {
 					className='mb-3'
 					controlId='assignRoleInternalUserId'
 				>
-					<Form.Label>Usuario interno</Form.Label>
-					<Form.Select {...register('internalUserId', { required: true })}>
+					<Form.Label className='required-label'>Usuario interno</Form.Label>
+					<Form.Select
+						aria-required='true'
+						{...register('internalUserId', { required: true })}
+					>
 						<option
 							value=''
 							disabled
@@ -165,8 +168,11 @@ export function AssignRoleToInternalUserForm() {
 					className='mb-3'
 					controlId='assignRoleInternalUserApplicationId'
 				>
-					<Form.Label>Aplicación</Form.Label>
-					<Form.Select {...register('applicationId', { required: true })}>
+					<Form.Label className='required-label'>Aplicación</Form.Label>
+					<Form.Select
+						aria-required='true'
+						{...register('applicationId', { required: true })}
+					>
 						<option
 							value=''
 							disabled
@@ -199,8 +205,11 @@ export function AssignRoleToInternalUserForm() {
 					className='mb-4'
 					controlId='assignRoleInternalUserRoleId'
 				>
-					<Form.Label>Rol</Form.Label>
-					<Form.Select {...register('roleId', { required: true })}>
+					<Form.Label className='required-label'>Rol</Form.Label>
+					<Form.Select
+						aria-required='true'
+						{...register('roleId', { required: true })}
+					>
 						<option
 							value=''
 							disabled
@@ -223,9 +232,6 @@ export function AssignRoleToInternalUserForm() {
 						>
 							{rolesError}
 						</Alert>
-					)}
-					{!rolesError && !applicationId && (
-						<Form.Text className='text-muted'>Seleccioná una aplicación primero.</Form.Text>
 					)}
 					{!rolesError && applicationId && roles === null && (
 						<Form.Text className='text-muted'>Cargando…</Form.Text>

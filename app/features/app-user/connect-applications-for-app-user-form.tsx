@@ -184,8 +184,9 @@ export function ConnectApplicationsForAppUserForm() {
 					className='mb-3'
 					controlId='connectAppUserId'
 				>
-					<Form.Label>Usuario de aplicación</Form.Label>
+					<Form.Label className='required-label'>Usuario de aplicación</Form.Label>
 					<Form.Select
+						aria-required='true'
 						{...register('appUserId', {
 							required: true,
 							onChange: () => {
@@ -227,8 +228,9 @@ export function ConnectApplicationsForAppUserForm() {
 					className='mb-3'
 					controlId='connectOriginApplicationId'
 				>
-					<Form.Label>Aplicación origen</Form.Label>
+					<Form.Label className='required-label'>Aplicación origen</Form.Label>
 					<Form.Select
+						aria-required='true'
 						disabled={!currentAssigned?.items}
 						{...register('originApplicationId', {
 							required: true,
@@ -250,8 +252,9 @@ export function ConnectApplicationsForAppUserForm() {
 					className='mb-4'
 					controlId='connectDestinationApplicationId'
 				>
-					<Form.Label>Aplicación destino</Form.Label>
+					<Form.Label className='required-label'>Aplicación destino</Form.Label>
 					<Form.Select
+						aria-required='true'
 						disabled={!currentAssigned?.items}
 						{...register('destinationApplicationId', {
 							required: true,

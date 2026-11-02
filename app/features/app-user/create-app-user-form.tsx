@@ -49,38 +49,34 @@ export function CreateAppUserForm() {
 					className='mb-3'
 					controlId='createAppUserName'
 				>
-					<Form.Label>Nombre</Form.Label>
+					<Form.Label className='required-label'>Nombre</Form.Label>
 					<Form.Control
 						type='text'
+						aria-required='true'
 						{...register('name', {
 							required: 'Este campo es obligatorio.',
 							maxLength: { value: 20, message: 'Máximo 20 caracteres.' },
 						})}
 					/>
-					{errors.name ? (
-						<Form.Text className='text-danger'>{errors.name.message}</Form.Text>
-					) : (
-						<Form.Text className='text-muted'>Máximo 20 caracteres.</Form.Text>
-					)}
+					{errors.name && <Form.Text className='text-danger'>{errors.name.message}</Form.Text>}
 				</Form.Group>
 
 				<Form.Group
 					className='mb-4'
 					controlId='createAppUserDescription'
 				>
-					<Form.Label>Descripción</Form.Label>
+					<Form.Label className='required-label'>Descripción</Form.Label>
 					<Form.Control
 						as='textarea'
 						rows={4}
+						aria-required='true'
 						{...register('description', {
 							required: 'Este campo es obligatorio.',
 							maxLength: { value: 200, message: 'Máximo 200 caracteres.' },
 						})}
 					/>
-					{errors.description ? (
+					{errors.description && (
 						<Form.Text className='text-danger'>{errors.description.message}</Form.Text>
-					) : (
-						<Form.Text className='text-muted'>Máximo 200 caracteres.</Form.Text>
 					)}
 				</Form.Group>
 
