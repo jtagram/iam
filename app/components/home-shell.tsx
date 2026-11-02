@@ -1,7 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import { Nav } from 'react-bootstrap';
+import { Nav, Tab } from 'react-bootstrap';
 
 import { AppUsersList } from '@/app/features/app-user/app-users-list';
 import { AssignApplicationForm } from '@/app/features/app-user/assign-application-form';
@@ -17,61 +16,192 @@ import { CreateInternalUserForm } from '@/app/features/internal-user/create-inte
 import { InternalUsersList } from '@/app/features/internal-user/internal-users-list';
 import { ApplicationRolesList } from '@/app/features/role/application-roles-list';
 import { CreateRoleForm } from '@/app/features/role/create-role-form';
-import { NAV_GROUPS, NAV_ITEMS, type NavItemId } from '@/app/lib/nav-items';
 
 export function HomeShell() {
-	const [selected, setSelected] = useState<NavItemId>(NAV_ITEMS[0].id);
-
 	return (
-		<div className='d-flex flex-grow-1 overflow-hidden'>
-			<Nav
-				variant='pills'
-				activeKey={selected}
-				onSelect={(key) => key && setSelected(key as NavItemId)}
-				className='flex-column flex-nowrap flex-shrink-0 border-end bg-light p-3'
-				style={{ width: 260, overflowY: 'auto' }}
-			>
-				{NAV_GROUPS.map((group) => (
-					<div
-						key={group.title}
-						className='mb-3'
-					>
-						<div className='text-uppercase small fw-bold text-muted px-2 mb-1'>{group.title}</div>
-						{group.items.map((item) => (
-							<Nav.Item
-								key={item.id}
-								className='mb-1'
-							>
-								<Nav.Link eventKey={item.id}>{item.label}</Nav.Link>
-							</Nav.Item>
-						))}
+		<Tab.Container
+			defaultActiveKey='create-application'
+			transition={false}
+		>
+			<div className='d-flex flex-grow-1 overflow-hidden'>
+				<Nav
+					variant='pills'
+					className='flex-column flex-nowrap flex-shrink-0 border-end bg-light p-3'
+					style={{ width: 260, overflowY: 'auto' }}
+				>
+					<div className='mb-3'>
+						<div className='text-uppercase small fw-bold text-muted px-2 mb-1'>Aplicaciones</div>
+						<Nav.Item className='mb-1'>
+							<Nav.Link eventKey='create-application'>Crear aplicación</Nav.Link>
+						</Nav.Item>
+						<Nav.Item className='mb-1'>
+							<Nav.Link eventKey='view-applications'>Ver aplicaciones</Nav.Link>
+						</Nav.Item>
+						<Nav.Item className='mb-1'>
+							<Nav.Link eventKey='create-role'>Crear rol de aplicación</Nav.Link>
+						</Nav.Item>
+						<Nav.Item className='mb-1'>
+							<Nav.Link eventKey='view-application-roles'>Ver roles de aplicaciones</Nav.Link>
+						</Nav.Item>
 					</div>
-				))}
-			</Nav>
+					<div className='mb-3'>
+						<div className='text-uppercase small fw-bold text-muted px-2 mb-1'>
+							Usuarios de aplicación
+						</div>
+						<Nav.Item className='mb-1'>
+							<Nav.Link eventKey='create-app-user'>Crear usuario de aplicación</Nav.Link>
+						</Nav.Item>
+						<Nav.Item className='mb-1'>
+							<Nav.Link eventKey='assign-application-to-app-user'>
+								Asignar aplicación a usuario de aplicación
+							</Nav.Link>
+						</Nav.Item>
+						<Nav.Item className='mb-1'>
+							<Nav.Link eventKey='assign-role-to-app-user'>
+								Asignar rol a usuarios de aplicación
+							</Nav.Link>
+						</Nav.Item>
+						<Nav.Item className='mb-1'>
+							<Nav.Link eventKey='connect-applications-for-app-user'>
+								Relacionar aplicaciones para usuarios de aplicación
+							</Nav.Link>
+						</Nav.Item>
+						<Nav.Item className='mb-1'>
+							<Nav.Link eventKey='view-app-users'>Ver usuarios de aplicación</Nav.Link>
+						</Nav.Item>
+					</div>
+					<div className='mb-3'>
+						<div className='text-uppercase small fw-bold text-muted px-2 mb-1'>
+							Usuarios internos
+						</div>
+						<Nav.Item className='mb-1'>
+							<Nav.Link eventKey='create-internal-user'>Crear usuario interno</Nav.Link>
+						</Nav.Item>
+						<Nav.Item className='mb-1'>
+							<Nav.Link eventKey='assign-application-to-internal-user'>
+								Asignar aplicación a usuario interno
+							</Nav.Link>
+						</Nav.Item>
+						<Nav.Item className='mb-1'>
+							<Nav.Link eventKey='assign-role-to-internal-user'>
+								Asignar rol a usuario interno
+							</Nav.Link>
+						</Nav.Item>
+						<Nav.Item className='mb-1'>
+							<Nav.Link eventKey='connect-applications-for-internal-user'>
+								Relacionar aplicaciones para usuarios internos
+							</Nav.Link>
+						</Nav.Item>
+						<Nav.Item className='mb-1'>
+							<Nav.Link eventKey='view-internal-users'>Ver usuarios internos</Nav.Link>
+						</Nav.Item>
+					</div>
+				</Nav>
 
-			<main
-				className='flex-grow-1 overflow-auto p-4'
-				style={{ minWidth: 0 }}
-			>
-				{selected === 'create-application' && <CreateApplicationForm />}
-				{selected === 'view-applications' && <ApplicationsList />}
-				{selected === 'create-role' && <CreateRoleForm />}
-				{selected === 'view-application-roles' && <ApplicationRolesList />}
-				{selected === 'create-app-user' && <CreateAppUserForm />}
-				{selected === 'assign-application-to-app-user' && <AssignApplicationForm />}
-				{selected === 'assign-role-to-app-user' && <AssignRoleToAppUserForm />}
-				{selected === 'connect-applications-for-app-user' && <ConnectApplicationsForAppUserForm />}
-				{selected === 'view-app-users' && <AppUsersList />}
-				{selected === 'create-internal-user' && <CreateInternalUserForm />}
-				{selected === 'assign-application-to-internal-user' && (
-					<AssignApplicationToInternalUserForm />
-				)}
-				{selected === 'assign-role-to-internal-user' && <AssignRoleToInternalUserForm />}
-				{selected === 'connect-applications-for-internal-user' && (
-					<ConnectApplicationsForInternalUserForm />
-				)}
-				{selected === 'view-internal-users' && <InternalUsersList />}
-			</main>
-		</div>
+				<Tab.Content
+					className='flex-grow-1 overflow-auto p-4'
+					style={{ minWidth: 0 }}
+				>
+					<Tab.Pane
+						eventKey='create-application'
+						mountOnEnter
+						unmountOnExit
+					>
+						<CreateApplicationForm />
+					</Tab.Pane>
+					<Tab.Pane
+						eventKey='view-applications'
+						mountOnEnter
+						unmountOnExit
+					>
+						<ApplicationsList />
+					</Tab.Pane>
+					<Tab.Pane
+						eventKey='create-role'
+						mountOnEnter
+						unmountOnExit
+					>
+						<CreateRoleForm />
+					</Tab.Pane>
+					<Tab.Pane
+						eventKey='view-application-roles'
+						mountOnEnter
+						unmountOnExit
+					>
+						<ApplicationRolesList />
+					</Tab.Pane>
+					<Tab.Pane
+						eventKey='create-app-user'
+						mountOnEnter
+						unmountOnExit
+					>
+						<CreateAppUserForm />
+					</Tab.Pane>
+					<Tab.Pane
+						eventKey='assign-application-to-app-user'
+						mountOnEnter
+						unmountOnExit
+					>
+						<AssignApplicationForm />
+					</Tab.Pane>
+					<Tab.Pane
+						eventKey='assign-role-to-app-user'
+						mountOnEnter
+						unmountOnExit
+					>
+						<AssignRoleToAppUserForm />
+					</Tab.Pane>
+					<Tab.Pane
+						eventKey='connect-applications-for-app-user'
+						mountOnEnter
+						unmountOnExit
+					>
+						<ConnectApplicationsForAppUserForm />
+					</Tab.Pane>
+					<Tab.Pane
+						eventKey='view-app-users'
+						mountOnEnter
+						unmountOnExit
+					>
+						<AppUsersList />
+					</Tab.Pane>
+					<Tab.Pane
+						eventKey='create-internal-user'
+						mountOnEnter
+						unmountOnExit
+					>
+						<CreateInternalUserForm />
+					</Tab.Pane>
+					<Tab.Pane
+						eventKey='assign-application-to-internal-user'
+						mountOnEnter
+						unmountOnExit
+					>
+						<AssignApplicationToInternalUserForm />
+					</Tab.Pane>
+					<Tab.Pane
+						eventKey='assign-role-to-internal-user'
+						mountOnEnter
+						unmountOnExit
+					>
+						<AssignRoleToInternalUserForm />
+					</Tab.Pane>
+					<Tab.Pane
+						eventKey='connect-applications-for-internal-user'
+						mountOnEnter
+						unmountOnExit
+					>
+						<ConnectApplicationsForInternalUserForm />
+					</Tab.Pane>
+					<Tab.Pane
+						eventKey='view-internal-users'
+						mountOnEnter
+						unmountOnExit
+					>
+						<InternalUsersList />
+					</Tab.Pane>
+				</Tab.Content>
+			</div>
+		</Tab.Container>
 	);
 }
