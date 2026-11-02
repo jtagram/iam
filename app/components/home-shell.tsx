@@ -1,6 +1,6 @@
 'use client';
 
-import { Accordion, Nav, Tab } from 'react-bootstrap';
+import { Accordion, Col, Nav, Row, Tab } from 'react-bootstrap';
 
 import { AppUsersList } from '@/app/features/app-user/app-users-list';
 import { AssignApplicationForm } from '@/app/features/app-user/assign-application-form';
@@ -23,10 +23,10 @@ export function HomeShell() {
 			defaultActiveKey='create-application'
 			transition={false}
 		>
-			<div className='d-flex flex-grow-1 overflow-hidden'>
-				<div
-					className='flex-shrink-0 border-end bg-light p-3'
-					style={{ width: 260, overflowY: 'auto' }}
+			<Row className='flex-grow-1 g-0 overflow-hidden'>
+				<Col
+					md={3}
+					className='border-end bg-light p-3 overflow-auto'
 				>
 					<Accordion
 						defaultActiveKey={['applications']}
@@ -121,112 +121,114 @@ export function HomeShell() {
 							</Accordion.Body>
 						</Accordion.Item>
 					</Accordion>
-				</div>
+				</Col>
 
-				<Tab.Content
-					className='flex-grow-1 overflow-auto p-4'
-					style={{ minWidth: 0 }}
+				<Col
+					md={9}
+					className='p-4 overflow-auto'
 				>
-					<Tab.Pane
-						eventKey='create-application'
-						mountOnEnter
-						unmountOnExit
-					>
-						<CreateApplicationForm />
-					</Tab.Pane>
-					<Tab.Pane
-						eventKey='view-applications'
-						mountOnEnter
-						unmountOnExit
-					>
-						<ApplicationsList />
-					</Tab.Pane>
-					<Tab.Pane
-						eventKey='create-role'
-						mountOnEnter
-						unmountOnExit
-					>
-						<CreateRoleForm />
-					</Tab.Pane>
-					<Tab.Pane
-						eventKey='view-application-roles'
-						mountOnEnter
-						unmountOnExit
-					>
-						<ApplicationRolesList />
-					</Tab.Pane>
-					<Tab.Pane
-						eventKey='create-app-user'
-						mountOnEnter
-						unmountOnExit
-					>
-						<CreateAppUserForm />
-					</Tab.Pane>
-					<Tab.Pane
-						eventKey='assign-application-to-app-user'
-						mountOnEnter
-						unmountOnExit
-					>
-						<AssignApplicationForm />
-					</Tab.Pane>
-					<Tab.Pane
-						eventKey='assign-role-to-app-user'
-						mountOnEnter
-						unmountOnExit
-					>
-						<AssignRoleToAppUserForm />
-					</Tab.Pane>
-					<Tab.Pane
-						eventKey='connect-applications-for-app-user'
-						mountOnEnter
-						unmountOnExit
-					>
-						<ConnectApplicationsForAppUserForm />
-					</Tab.Pane>
-					<Tab.Pane
-						eventKey='view-app-users'
-						mountOnEnter
-						unmountOnExit
-					>
-						<AppUsersList />
-					</Tab.Pane>
-					<Tab.Pane
-						eventKey='create-internal-user'
-						mountOnEnter
-						unmountOnExit
-					>
-						<CreateInternalUserForm />
-					</Tab.Pane>
-					<Tab.Pane
-						eventKey='assign-application-to-internal-user'
-						mountOnEnter
-						unmountOnExit
-					>
-						<AssignApplicationToInternalUserForm />
-					</Tab.Pane>
-					<Tab.Pane
-						eventKey='assign-role-to-internal-user'
-						mountOnEnter
-						unmountOnExit
-					>
-						<AssignRoleToInternalUserForm />
-					</Tab.Pane>
-					<Tab.Pane
-						eventKey='connect-applications-for-internal-user'
-						mountOnEnter
-						unmountOnExit
-					>
-						<ConnectApplicationsForInternalUserForm />
-					</Tab.Pane>
-					<Tab.Pane
-						eventKey='view-internal-users'
-						mountOnEnter
-						unmountOnExit
-					>
-						<InternalUsersList />
-					</Tab.Pane>
-				</Tab.Content>
-			</div>
+					<Tab.Content>
+						<Tab.Pane
+							eventKey='create-application'
+							mountOnEnter
+							unmountOnExit
+						>
+							<CreateApplicationForm />
+						</Tab.Pane>
+						<Tab.Pane
+							eventKey='view-applications'
+							mountOnEnter
+							unmountOnExit
+						>
+							<ApplicationsList />
+						</Tab.Pane>
+						<Tab.Pane
+							eventKey='create-role'
+							mountOnEnter
+							unmountOnExit
+						>
+							<CreateRoleForm />
+						</Tab.Pane>
+						<Tab.Pane
+							eventKey='view-application-roles'
+							mountOnEnter
+							unmountOnExit
+						>
+							<ApplicationRolesList />
+						</Tab.Pane>
+						<Tab.Pane
+							eventKey='create-app-user'
+							mountOnEnter
+							unmountOnExit
+						>
+							<CreateAppUserForm />
+						</Tab.Pane>
+						<Tab.Pane
+							eventKey='assign-application-to-app-user'
+							mountOnEnter
+							unmountOnExit
+						>
+							<AssignApplicationForm />
+						</Tab.Pane>
+						<Tab.Pane
+							eventKey='assign-role-to-app-user'
+							mountOnEnter
+							unmountOnExit
+						>
+							<AssignRoleToAppUserForm />
+						</Tab.Pane>
+						<Tab.Pane
+							eventKey='connect-applications-for-app-user'
+							mountOnEnter
+							unmountOnExit
+						>
+							<ConnectApplicationsForAppUserForm />
+						</Tab.Pane>
+						<Tab.Pane
+							eventKey='view-app-users'
+							mountOnEnter
+							unmountOnExit
+						>
+							<AppUsersList />
+						</Tab.Pane>
+						<Tab.Pane
+							eventKey='create-internal-user'
+							mountOnEnter
+							unmountOnExit
+						>
+							<CreateInternalUserForm />
+						</Tab.Pane>
+						<Tab.Pane
+							eventKey='assign-application-to-internal-user'
+							mountOnEnter
+							unmountOnExit
+						>
+							<AssignApplicationToInternalUserForm />
+						</Tab.Pane>
+						<Tab.Pane
+							eventKey='assign-role-to-internal-user'
+							mountOnEnter
+							unmountOnExit
+						>
+							<AssignRoleToInternalUserForm />
+						</Tab.Pane>
+						<Tab.Pane
+							eventKey='connect-applications-for-internal-user'
+							mountOnEnter
+							unmountOnExit
+						>
+							<ConnectApplicationsForInternalUserForm />
+						</Tab.Pane>
+						<Tab.Pane
+							eventKey='view-internal-users'
+							mountOnEnter
+							unmountOnExit
+						>
+							<InternalUsersList />
+						</Tab.Pane>
+					</Tab.Content>
+				</Col>
+			</Row>
 		</Tab.Container>
 	);
 }
