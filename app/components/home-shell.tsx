@@ -23,7 +23,7 @@ export function HomeShell() {
 			defaultActiveKey='create-application'
 			transition={false}
 		>
-			<Row className='flex-grow-1 g-0 overflow-hidden'>
+			<Row className='flex-grow-1 flex-nowrap g-0 overflow-hidden'>
 				<Col
 					md={3}
 					className='border-end bg-light p-3 overflow-auto'
