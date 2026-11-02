@@ -2,10 +2,13 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
+import { notifyError, notifySuccess } from '@/app/lib/notify';
+
 import { createApplication } from '../application.service';
 import { CreateApplicationForm } from '../create-application-form';
 
 vi.mock('../application.service');
+vi.mock('@/app/lib/notify');
 
 afterEach(() => {
 	vi.resetAllMocks();
@@ -41,9 +44,9 @@ describe('CreateApplicationForm', () => {
 		const user = await fillForm();
 		await user.click(screen.getByRole('button', { name: 'Crear' }));
 
-		expect(
-			await screen.findByText('Aplicación "billing" creada correctamente.'),
-		).toBeInTheDocument();
+		await waitFor(() =>
+			expect(notifySuccess).toHaveBeenCalledWith('Aplicación "billing" creada correctamente.'),
+		);
 		expect(createApplication).toHaveBeenCalledWith({
 			name: 'billing',
 			description: 'Billing app',
@@ -59,7 +62,9 @@ describe('CreateApplicationForm', () => {
 		const user = await fillForm('typed', 'desc');
 		await user.click(screen.getByRole('button', { name: 'Crear' }));
 
-		expect(await screen.findByText('Aplicación "typed" creada correctamente.')).toBeInTheDocument();
+		await waitFor(() =>
+			expect(notifySuccess).toHaveBeenCalledWith('Aplicación "typed" creada correctamente.'),
+		);
 	});
 
 	it('shows the error when creation fails', async () => {
@@ -69,8 +74,8 @@ describe('CreateApplicationForm', () => {
 		const user = await fillForm();
 		await user.click(screen.getByRole('button', { name: 'Crear' }));
 
-		expect(await screen.findByText('Duplicated')).toBeInTheDocument();
-		expect(screen.queryByText(/creada correctamente/)).not.toBeInTheDocument();
+		await waitFor(() => expect(notifyError).toHaveBeenCalledWith('Duplicated'));
+		expect(notifySuccess).not.toHaveBeenCalled();
 	});
 
 	it('validates the maximum length of name and description', async () => {

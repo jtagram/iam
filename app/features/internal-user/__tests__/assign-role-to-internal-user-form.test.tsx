@@ -1,13 +1,15 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { getApplications } from '@/app/features/application/application.service';
 import { getRolesByApplication } from '@/app/features/role/role.service';
+import { notifyError, notifySuccess } from '@/app/lib/notify';
 
 import { AssignRoleToInternalUserForm } from '../assign-role-to-internal-user-form';
 import { assignRoleToInternalUser, getInternalUsers } from '../internal-user.service';
 
+vi.mock('@/app/lib/notify');
 vi.mock('@/app/features/application/application.service');
 vi.mock('@/app/features/role/role.service');
 vi.mock('../internal-user.service');
@@ -107,7 +109,7 @@ describe('AssignRoleToInternalUserForm', () => {
 		const user = await fillForm();
 		await user.click(screen.getByRole('button', { name: 'Asignar' }));
 
-		expect(await screen.findByText('Rol asignado correctamente.')).toBeInTheDocument();
+		await waitFor(() => expect(notifySuccess).toHaveBeenCalledWith('Rol asignado correctamente.'));
 		expect(assignRoleToInternalUser).toHaveBeenCalledWith('3', { roleId: 8 });
 	});
 
@@ -118,7 +120,7 @@ describe('AssignRoleToInternalUserForm', () => {
 		const user = await fillForm();
 		await user.click(screen.getByRole('button', { name: 'Asignar' }));
 
-		expect(await screen.findByText('Already assigned')).toBeInTheDocument();
+		await waitFor(() => expect(notifyError).toHaveBeenCalledWith('Already assigned'));
 	});
 
 	it('keeps the submit button disabled until the form is complete', async () => {

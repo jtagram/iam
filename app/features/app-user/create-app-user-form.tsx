@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form';
 
 import type { CreatedAppUser } from '@/app/features/app-user/app-user.dto';
 import { createAppUser } from '@/app/features/app-user/app-user.service';
+import { notifyError } from '@/app/lib/notify';
 
 interface CreateAppUserFormValues {
 	name: string;
@@ -19,8 +20,6 @@ export function CreateAppUserForm() {
 		register,
 		handleSubmit,
 		reset,
-		setError,
-		clearErrors,
 		formState: { errors, isSubmitting, isValid },
 	} = useForm<CreateAppUserFormValues>({
 		mode: 'onChange',
@@ -28,7 +27,6 @@ export function CreateAppUserForm() {
 	});
 
 	const onSubmit = handleSubmit(async (data) => {
-		clearErrors('root');
 		setCreated(null);
 
 		try {
@@ -36,7 +34,7 @@ export function CreateAppUserForm() {
 			setCreated(createdAppUser);
 			reset();
 		} catch (err) {
-			setError('root', { message: (err as Error).message });
+			notifyError((err as Error).message);
 		}
 	});
 
@@ -79,8 +77,6 @@ export function CreateAppUserForm() {
 						<Form.Text className='text-danger'>{errors.description.message}</Form.Text>
 					)}
 				</Form.Group>
-
-				{errors.root && <Alert variant='danger'>{errors.root.message}</Alert>}
 
 				<Button
 					type='submit'

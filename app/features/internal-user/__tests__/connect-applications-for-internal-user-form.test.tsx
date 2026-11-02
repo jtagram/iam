@@ -1,6 +1,8 @@
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { notifyError, notifySuccess } from '@/app/lib/notify';
 
 import { ConnectApplicationsForInternalUserForm } from '../connect-applications-for-internal-user-form';
 import {
@@ -10,6 +12,7 @@ import {
 	getInternalUsers,
 } from '../internal-user.service';
 
+vi.mock('@/app/lib/notify');
 vi.mock('../internal-user.service');
 
 const assigned = [
@@ -146,7 +149,9 @@ describe('ConnectApplicationsForInternalUserForm', () => {
 		await user.selectOptions(screen.getByLabelText('Aplicación destino'), '2');
 		await user.click(screen.getByRole('button', { name: 'Relacionar' }));
 
-		expect(await screen.findByText('Conexión creada correctamente.')).toBeInTheDocument();
+		await waitFor(() =>
+			expect(notifySuccess).toHaveBeenCalledWith('Conexión creada correctamente.'),
+		);
 		expect(createConnectionForInternalUser).toHaveBeenCalledWith('3', {
 			originApplicationId: 1,
 			destinationApplicationId: 2,
@@ -165,7 +170,7 @@ describe('ConnectApplicationsForInternalUserForm', () => {
 		await user.selectOptions(screen.getByLabelText('Aplicación destino'), '2');
 		await user.click(screen.getByRole('button', { name: 'Relacionar' }));
 
-		expect(await screen.findByText('Already connected')).toBeInTheDocument();
+		await waitFor(() => expect(notifyError).toHaveBeenCalledWith('Already connected'));
 		expect(getConnectionsForInternalUser).toHaveBeenCalledTimes(1);
 	});
 });

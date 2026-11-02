@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
-import { Alert, Button, Form } from 'react-bootstrap';
+import { Button, Form } from 'react-bootstrap';
 import { useForm } from 'react-hook-form';
 
 import { createInternalUser } from '@/app/features/internal-user/internal-user.service';
+import { notifyError, notifySuccess } from '@/app/lib/notify';
 
 interface CreateInternalUserFormValues {
 	name: string;
@@ -14,14 +14,10 @@ interface CreateInternalUserFormValues {
 }
 
 export function CreateInternalUserForm() {
-	const [success, setSuccess] = useState<string | null>(null);
-
 	const {
 		register,
 		handleSubmit,
 		reset,
-		setError,
-		clearErrors,
 		formState: { errors, isSubmitting, isValid },
 	} = useForm<CreateInternalUserFormValues>({
 		mode: 'onChange',
@@ -29,20 +25,17 @@ export function CreateInternalUserForm() {
 	});
 
 	const onSubmit = handleSubmit(async (data) => {
-		clearErrors('root');
-		setSuccess(null);
-
 		try {
 			const created = await createInternalUser(data);
 
-			setSuccess(
+			notifySuccess(
 				`Usuario interno "${created.name ?? data.name} ${
 					created.lastname ?? data.lastname
 				}" creado correctamente.`,
 			);
 			reset();
 		} catch (err) {
-			setError('root', { message: (err as Error).message });
+			notifyError((err as Error).message);
 		}
 	});
 
@@ -127,9 +120,6 @@ export function CreateInternalUserForm() {
 						<Form.Text className='text-danger'>{errors.password.message}</Form.Text>
 					)}
 				</Form.Group>
-
-				{errors.root && <Alert variant='danger'>{errors.root.message}</Alert>}
-				{success && <Alert variant='success'>{success}</Alert>}
 
 				<Button
 					type='submit'

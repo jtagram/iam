@@ -1,6 +1,8 @@
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { notifyError, notifySuccess } from '@/app/lib/notify';
 
 import {
 	createConnectionForAppUser,
@@ -10,6 +12,7 @@ import {
 } from '../app-user.service';
 import { ConnectApplicationsForAppUserForm } from '../connect-applications-for-app-user-form';
 
+vi.mock('@/app/lib/notify');
 vi.mock('../app-user.service');
 
 const assigned = [
@@ -143,7 +146,9 @@ describe('ConnectApplicationsForAppUserForm', () => {
 		await user.selectOptions(screen.getByLabelText('Aplicación destino'), '2');
 		await user.click(screen.getByRole('button', { name: 'Relacionar' }));
 
-		expect(await screen.findByText('Conexión creada correctamente.')).toBeInTheDocument();
+		await waitFor(() =>
+			expect(notifySuccess).toHaveBeenCalledWith('Conexión creada correctamente.'),
+		);
 		expect(createConnectionForAppUser).toHaveBeenCalledWith('3', {
 			originApplicationId: 1,
 			destinationApplicationId: 2,
@@ -162,7 +167,7 @@ describe('ConnectApplicationsForAppUserForm', () => {
 		await user.selectOptions(screen.getByLabelText('Aplicación destino'), '2');
 		await user.click(screen.getByRole('button', { name: 'Relacionar' }));
 
-		expect(await screen.findByText('Already connected')).toBeInTheDocument();
+		await waitFor(() => expect(notifyError).toHaveBeenCalledWith('Already connected'));
 		expect(getConnectionsForAppUser).toHaveBeenCalledTimes(1);
 	});
 });

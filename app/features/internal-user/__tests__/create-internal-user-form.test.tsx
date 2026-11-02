@@ -1,10 +1,13 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+
+import { notifyError, notifySuccess } from '@/app/lib/notify';
 
 import { CreateInternalUserForm } from '../create-internal-user-form';
 import { createInternalUser } from '../internal-user.service';
 
+vi.mock('@/app/lib/notify');
 vi.mock('../internal-user.service');
 
 afterEach(() => {
@@ -47,9 +50,9 @@ describe('CreateInternalUserForm', () => {
 		const user = await fillForm();
 		await user.click(screen.getByRole('button', { name: 'Crear' }));
 
-		expect(
-			await screen.findByText('Usuario interno "Ana Gil" creado correctamente.'),
-		).toBeInTheDocument();
+		await waitFor(() =>
+			expect(notifySuccess).toHaveBeenCalledWith('Usuario interno "Ana Gil" creado correctamente.'),
+		);
 		expect(createInternalUser).toHaveBeenCalledWith({
 			name: 'Ana',
 			lastname: 'Gil',
@@ -67,9 +70,11 @@ describe('CreateInternalUserForm', () => {
 		const user = await fillForm({ name: 'Typed', lastname: 'Name' });
 		await user.click(screen.getByRole('button', { name: 'Crear' }));
 
-		expect(
-			await screen.findByText('Usuario interno "Typed Name" creado correctamente.'),
-		).toBeInTheDocument();
+		await waitFor(() =>
+			expect(notifySuccess).toHaveBeenCalledWith(
+				'Usuario interno "Typed Name" creado correctamente.',
+			),
+		);
 	});
 
 	it('shows the error when creation fails', async () => {
@@ -79,8 +84,8 @@ describe('CreateInternalUserForm', () => {
 		const user = await fillForm();
 		await user.click(screen.getByRole('button', { name: 'Crear' }));
 
-		expect(await screen.findByText('Email taken')).toBeInTheDocument();
-		expect(screen.queryByText(/creado correctamente/)).not.toBeInTheDocument();
+		await waitFor(() => expect(notifyError).toHaveBeenCalledWith('Email taken'));
+		expect(notifySuccess).not.toHaveBeenCalled();
 	});
 
 	it('validates the maximum length of name, lastname and email', async () => {

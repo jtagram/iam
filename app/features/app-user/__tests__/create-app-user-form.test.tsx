@@ -1,10 +1,13 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+
+import { notifyError } from '@/app/lib/notify';
 
 import { createAppUser } from '../app-user.service';
 import { CreateAppUserForm } from '../create-app-user-form';
 
+vi.mock('@/app/lib/notify');
 vi.mock('../app-user.service');
 
 afterEach(() => {
@@ -60,7 +63,7 @@ describe('CreateAppUserForm', () => {
 		const user = await fillForm();
 		await user.click(screen.getByRole('button', { name: 'Crear' }));
 
-		expect(await screen.findByText('Duplicated')).toBeInTheDocument();
+		await waitFor(() => expect(notifyError).toHaveBeenCalledWith('Duplicated'));
 		expect(screen.queryByText(/clienteSecret ahora/)).not.toBeInTheDocument();
 	});
 

@@ -8,6 +8,7 @@ import type { AppUser } from '@/app/features/app-user/app-user.dto';
 import { assignApplicationToAppUser, getAppUsers } from '@/app/features/app-user/app-user.service';
 import type { Application } from '@/app/features/application/application.dto';
 import { getApplications } from '@/app/features/application/application.service';
+import { notifyError, notifySuccess } from '@/app/lib/notify';
 
 interface AssignApplicationFormValues {
 	appUserId: string;
@@ -20,15 +21,12 @@ export function AssignApplicationForm() {
 
 	const [applications, setApplications] = useState<Application[] | null>(null);
 	const [applicationsError, setApplicationsError] = useState<string | null>(null);
-	const [success, setSuccess] = useState<string | null>(null);
 
 	const {
 		register,
 		handleSubmit,
 		reset,
-		setError,
-		clearErrors,
-		formState: { errors, isSubmitting, isValid },
+		formState: { isSubmitting, isValid },
 	} = useForm<AssignApplicationFormValues>({
 		mode: 'onChange',
 		defaultValues: { appUserId: '', applicationId: '' },
@@ -69,18 +67,15 @@ export function AssignApplicationForm() {
 	}, []);
 
 	const onSubmit = handleSubmit(async (data) => {
-		clearErrors('root');
-		setSuccess(null);
-
 		try {
 			await assignApplicationToAppUser(data.appUserId, {
 				applicationId: Number(data.applicationId),
 			});
 
-			setSuccess('Aplicación asignada correctamente.');
+			notifySuccess('Aplicación asignada correctamente.');
 			reset();
 		} catch (err) {
-			setError('root', { message: (err as Error).message });
+			notifyError((err as Error).message);
 		}
 	});
 
@@ -162,9 +157,6 @@ export function AssignApplicationForm() {
 						<Form.Text className='text-muted'>Cargando…</Form.Text>
 					)}
 				</Form.Group>
-
-				{errors.root && <Alert variant='danger'>{errors.root.message}</Alert>}
-				{success && <Alert variant='success'>{success}</Alert>}
 
 				<Button
 					type='submit'

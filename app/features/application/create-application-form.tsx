@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
-import { Alert, Button, Form } from 'react-bootstrap';
+import { Button, Form } from 'react-bootstrap';
 import { useForm } from 'react-hook-form';
 
 import { createApplication } from '@/app/features/application/application.service';
+import { notifyError, notifySuccess } from '@/app/lib/notify';
 
 interface CreateApplicationFormValues {
 	name: string;
@@ -12,14 +12,10 @@ interface CreateApplicationFormValues {
 }
 
 export function CreateApplicationForm() {
-	const [success, setSuccess] = useState<string | null>(null);
-
 	const {
 		register,
 		handleSubmit,
 		reset,
-		setError,
-		clearErrors,
 		formState: { errors, isSubmitting, isValid },
 	} = useForm<CreateApplicationFormValues>({
 		mode: 'onChange',
@@ -27,16 +23,13 @@ export function CreateApplicationForm() {
 	});
 
 	const onSubmit = handleSubmit(async (data) => {
-		clearErrors('root');
-		setSuccess(null);
-
 		try {
 			const created = await createApplication(data);
 
-			setSuccess(`Aplicación "${created?.name ?? data.name}" creada correctamente.`);
+			notifySuccess(`Aplicación "${created?.name ?? data.name}" creada correctamente.`);
 			reset();
 		} catch (err) {
-			setError('root', { message: (err as Error).message });
+			notifyError((err as Error).message);
 		}
 	});
 
@@ -79,9 +72,6 @@ export function CreateApplicationForm() {
 						<Form.Text className='text-danger'>{errors.description.message}</Form.Text>
 					)}
 				</Form.Group>
-
-				{errors.root && <Alert variant='danger'>{errors.root.message}</Alert>}
-				{success && <Alert variant='success'>{success}</Alert>}
 
 				<Button
 					type='submit'

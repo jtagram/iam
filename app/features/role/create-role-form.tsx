@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form';
 import type { Application } from '@/app/features/application/application.dto';
 import { getApplications } from '@/app/features/application/application.service';
 import { createRole } from '@/app/features/role/role.service';
+import { notifyError, notifySuccess } from '@/app/lib/notify';
 
 interface CreateRoleFormValues {
 	applicationId: string;
@@ -17,14 +18,11 @@ interface CreateRoleFormValues {
 export function CreateRoleForm() {
 	const [applications, setApplications] = useState<Application[] | null>(null);
 	const [applicationsError, setApplicationsError] = useState<string | null>(null);
-	const [success, setSuccess] = useState<string | null>(null);
 
 	const {
 		register,
 		handleSubmit,
 		reset,
-		setError,
-		clearErrors,
 		formState: { errors, isSubmitting, isValid },
 	} = useForm<CreateRoleFormValues>({
 		mode: 'onChange',
@@ -49,9 +47,6 @@ export function CreateRoleForm() {
 	}, []);
 
 	const onSubmit = handleSubmit(async (data) => {
-		clearErrors('root');
-		setSuccess(null);
-
 		try {
 			const created = await createRole({
 				applicationId: Number(data.applicationId),
@@ -59,10 +54,10 @@ export function CreateRoleForm() {
 				description: data.description,
 			});
 
-			setSuccess(`Rol "${created?.name ?? data.name}" creado correctamente.`);
+			notifySuccess(`Rol "${created?.name ?? data.name}" creado correctamente.`);
 			reset();
 		} catch (err) {
-			setError('root', { message: (err as Error).message });
+			notifyError((err as Error).message);
 		}
 	});
 
@@ -142,9 +137,6 @@ export function CreateRoleForm() {
 						<Form.Text className='text-danger'>{errors.description.message}</Form.Text>
 					)}
 				</Form.Group>
-
-				{errors.root && <Alert variant='danger'>{errors.root.message}</Alert>}
-				{success && <Alert variant='success'>{success}</Alert>}
 
 				<Button
 					type='submit'

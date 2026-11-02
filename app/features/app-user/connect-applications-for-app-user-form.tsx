@@ -15,6 +15,7 @@ import {
 	getAssignedApplicationsForAppUser,
 	getConnectionsForAppUser,
 } from '@/app/features/app-user/app-user.service';
+import { notifyError, notifySuccess } from '@/app/lib/notify';
 
 interface ConnectApplicationsFormValues {
 	appUserId: string;
@@ -34,18 +35,15 @@ export function ConnectApplicationsForAppUserForm() {
 	const [assigned, setAssigned] = useState<UserScoped<AssignedApplication[]> | null>(null);
 	const [connections, setConnections] = useState<UserScoped<ApplicationConnection[]> | null>(null);
 	const [reloadKey, setReloadKey] = useState(0);
-	const [success, setSuccess] = useState<string | null>(null);
 
 	const {
 		register,
 		handleSubmit,
 		reset,
 		setValue,
-		setError,
-		clearErrors,
 		control,
 		getValues,
-		formState: { errors, isSubmitting, isValid },
+		formState: { isSubmitting, isValid },
 	} = useForm<ConnectApplicationsFormValues>({
 		mode: 'onChange',
 		defaultValues: {
@@ -118,13 +116,8 @@ export function ConnectApplicationsForAppUserForm() {
 		originApplicationId !== '' && originApplicationId === destinationApplicationId;
 
 	const onSubmit = handleSubmit(async (data) => {
-		clearErrors('root');
-		setSuccess(null);
-
 		if (data.originApplicationId === data.destinationApplicationId) {
-			setError('root', {
-				message: 'La aplicación origen y destino deben ser distintas.',
-			});
+			notifyError('La aplicación origen y destino deben ser distintas.');
 			return;
 		}
 
@@ -134,7 +127,7 @@ export function ConnectApplicationsForAppUserForm() {
 				destinationApplicationId: Number(data.destinationApplicationId),
 			});
 
-			setSuccess('Conexión creada correctamente.');
+			notifySuccess('Conexión creada correctamente.');
 			setReloadKey((key) => key + 1);
 			reset({
 				appUserId: data.appUserId,
@@ -142,7 +135,7 @@ export function ConnectApplicationsForAppUserForm() {
 				destinationApplicationId: '',
 			});
 		} catch (err) {
-			setError('root', { message: (err as Error).message });
+			notifyError((err as Error).message);
 		}
 	});
 
@@ -192,7 +185,6 @@ export function ConnectApplicationsForAppUserForm() {
 							onChange: () => {
 								setValue('originApplicationId', '');
 								setValue('destinationApplicationId', '');
-								setSuccess(null);
 							},
 						})}
 					>
@@ -277,9 +269,6 @@ export function ConnectApplicationsForAppUserForm() {
 						</Form.Text>
 					)}
 				</Form.Group>
-
-				{errors.root && <Alert variant='danger'>{errors.root.message}</Alert>}
-				{success && <Alert variant='success'>{success}</Alert>}
 
 				<Button
 					type='submit'

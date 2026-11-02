@@ -11,6 +11,7 @@ import {
 	assignApplicationToInternalUser,
 	getInternalUsers,
 } from '@/app/features/internal-user/internal-user.service';
+import { notifyError, notifySuccess } from '@/app/lib/notify';
 
 interface AssignApplicationToInternalUserFormValues {
 	internalUserId: string;
@@ -23,15 +24,12 @@ export function AssignApplicationToInternalUserForm() {
 
 	const [applications, setApplications] = useState<Application[] | null>(null);
 	const [applicationsError, setApplicationsError] = useState<string | null>(null);
-	const [success, setSuccess] = useState<string | null>(null);
 
 	const {
 		register,
 		handleSubmit,
 		reset,
-		setError,
-		clearErrors,
-		formState: { errors, isSubmitting, isValid },
+		formState: { isSubmitting, isValid },
 	} = useForm<AssignApplicationToInternalUserFormValues>({
 		mode: 'onChange',
 		defaultValues: { internalUserId: '', applicationId: '' },
@@ -72,18 +70,15 @@ export function AssignApplicationToInternalUserForm() {
 	}, []);
 
 	const onSubmit = handleSubmit(async (data) => {
-		clearErrors('root');
-		setSuccess(null);
-
 		try {
 			await assignApplicationToInternalUser(data.internalUserId, {
 				applicationId: Number(data.applicationId),
 			});
 
-			setSuccess('Aplicación asignada correctamente.');
+			notifySuccess('Aplicación asignada correctamente.');
 			reset();
 		} catch (err) {
-			setError('root', { message: (err as Error).message });
+			notifyError((err as Error).message);
 		}
 	});
 
@@ -165,9 +160,6 @@ export function AssignApplicationToInternalUserForm() {
 						<Form.Text className='text-muted'>Cargando…</Form.Text>
 					)}
 				</Form.Group>
-
-				{errors.root && <Alert variant='danger'>{errors.root.message}</Alert>}
-				{success && <Alert variant='success'>{success}</Alert>}
 
 				<Button
 					type='submit'

@@ -1,12 +1,14 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { getApplications } from '@/app/features/application/application.service';
+import { notifyError, notifySuccess } from '@/app/lib/notify';
 
 import { CreateRoleForm } from '../create-role-form';
 import { createRole } from '../role.service';
 
+vi.mock('@/app/lib/notify');
 vi.mock('@/app/features/application/application.service');
 vi.mock('../role.service');
 
@@ -77,7 +79,9 @@ describe('CreateRoleForm', () => {
 		const user = await fillForm();
 		await user.click(screen.getByRole('button', { name: 'Crear' }));
 
-		expect(await screen.findByText('Rol "admin" creado correctamente.')).toBeInTheDocument();
+		await waitFor(() =>
+			expect(notifySuccess).toHaveBeenCalledWith('Rol "admin" creado correctamente.'),
+		);
 		expect(createRole).toHaveBeenCalledWith({
 			applicationId: 2,
 			name: 'admin',
@@ -93,7 +97,9 @@ describe('CreateRoleForm', () => {
 		const user = await fillForm('typed');
 		await user.click(screen.getByRole('button', { name: 'Crear' }));
 
-		expect(await screen.findByText('Rol "typed" creado correctamente.')).toBeInTheDocument();
+		await waitFor(() =>
+			expect(notifySuccess).toHaveBeenCalledWith('Rol "typed" creado correctamente.'),
+		);
 	});
 
 	it('shows the error when creation fails', async () => {
@@ -103,7 +109,7 @@ describe('CreateRoleForm', () => {
 		const user = await fillForm();
 		await user.click(screen.getByRole('button', { name: 'Crear' }));
 
-		expect(await screen.findByText('Duplicated')).toBeInTheDocument();
+		await waitFor(() => expect(notifyError).toHaveBeenCalledWith('Duplicated'));
 	});
 
 	it('validates the maximum length of the name', async () => {

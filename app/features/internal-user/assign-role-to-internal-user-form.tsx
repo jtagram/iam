@@ -13,6 +13,7 @@ import {
 } from '@/app/features/internal-user/internal-user.service';
 import type { Role } from '@/app/features/role/role.dto';
 import { getRolesByApplication } from '@/app/features/role/role.service';
+import { notifyError, notifySuccess } from '@/app/lib/notify';
 
 interface AssignRoleToInternalUserFormValues {
 	internalUserId: string;
@@ -29,7 +30,6 @@ export function AssignRoleToInternalUserForm() {
 
 	const [roles, setRoles] = useState<Role[] | null>(null);
 	const [rolesError, setRolesError] = useState<string | null>(null);
-	const [success, setSuccess] = useState<string | null>(null);
 
 	const {
 		register,
@@ -37,9 +37,7 @@ export function AssignRoleToInternalUserForm() {
 		control,
 		resetField,
 		reset,
-		setError,
-		clearErrors,
-		formState: { errors, isSubmitting, isValid },
+		formState: { isSubmitting, isValid },
 	} = useForm<AssignRoleToInternalUserFormValues>({
 		mode: 'onChange',
 		defaultValues: { internalUserId: '', applicationId: '', roleId: '' },
@@ -107,18 +105,15 @@ export function AssignRoleToInternalUserForm() {
 	}, [applicationId, resetField]);
 
 	const onSubmit = handleSubmit(async (data) => {
-		clearErrors('root');
-		setSuccess(null);
-
 		try {
 			await assignRoleToInternalUser(data.internalUserId, {
 				roleId: Number(data.roleId),
 			});
 
-			setSuccess('Rol asignado correctamente.');
+			notifySuccess('Rol asignado correctamente.');
 			reset();
 		} catch (err) {
-			setError('root', { message: (err as Error).message });
+			notifyError((err as Error).message);
 		}
 	});
 
@@ -237,9 +232,6 @@ export function AssignRoleToInternalUserForm() {
 						<Form.Text className='text-muted'>Cargando…</Form.Text>
 					)}
 				</Form.Group>
-
-				{errors.root && <Alert variant='danger'>{errors.root.message}</Alert>}
-				{success && <Alert variant='success'>{success}</Alert>}
 
 				<Button
 					type='submit'

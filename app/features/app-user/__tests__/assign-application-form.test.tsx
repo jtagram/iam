@@ -1,12 +1,14 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { getApplications } from '@/app/features/application/application.service';
+import { notifyError, notifySuccess } from '@/app/lib/notify';
 
 import { assignApplicationToAppUser, getAppUsers } from '../app-user.service';
 import { AssignApplicationForm } from '../assign-application-form';
 
+vi.mock('@/app/lib/notify');
 vi.mock('@/app/features/application/application.service');
 vi.mock('../app-user.service');
 
@@ -79,7 +81,9 @@ describe('AssignApplicationForm', () => {
 		const user = await fillForm();
 		await user.click(screen.getByRole('button', { name: 'Asignar' }));
 
-		expect(await screen.findByText('Aplicación asignada correctamente.')).toBeInTheDocument();
+		await waitFor(() =>
+			expect(notifySuccess).toHaveBeenCalledWith('Aplicación asignada correctamente.'),
+		);
 		expect(assignApplicationToAppUser).toHaveBeenCalledWith('3', {
 			applicationId: 2,
 		});
@@ -93,7 +97,7 @@ describe('AssignApplicationForm', () => {
 		const user = await fillForm();
 		await user.click(screen.getByRole('button', { name: 'Asignar' }));
 
-		expect(await screen.findByText('Already assigned')).toBeInTheDocument();
-		expect(screen.queryByText('Aplicación asignada correctamente.')).not.toBeInTheDocument();
+		await waitFor(() => expect(notifyError).toHaveBeenCalledWith('Already assigned'));
+		expect(notifySuccess).not.toHaveBeenCalled();
 	});
 });

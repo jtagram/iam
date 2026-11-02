@@ -10,6 +10,7 @@ import type { Application } from '@/app/features/application/application.dto';
 import { getApplications } from '@/app/features/application/application.service';
 import type { Role } from '@/app/features/role/role.dto';
 import { getRolesByApplication } from '@/app/features/role/role.service';
+import { notifyError, notifySuccess } from '@/app/lib/notify';
 
 interface AssignRoleToAppUserFormValues {
 	appUserId: string;
@@ -26,7 +27,6 @@ export function AssignRoleToAppUserForm() {
 
 	const [roles, setRoles] = useState<Role[] | null>(null);
 	const [rolesError, setRolesError] = useState<string | null>(null);
-	const [success, setSuccess] = useState<string | null>(null);
 
 	const {
 		register,
@@ -34,9 +34,7 @@ export function AssignRoleToAppUserForm() {
 		control,
 		resetField,
 		reset,
-		setError,
-		clearErrors,
-		formState: { errors, isSubmitting, isValid },
+		formState: { isSubmitting, isValid },
 	} = useForm<AssignRoleToAppUserFormValues>({
 		mode: 'onChange',
 		defaultValues: { appUserId: '', applicationId: '', roleId: '' },
@@ -104,18 +102,15 @@ export function AssignRoleToAppUserForm() {
 	}, [applicationId, resetField]);
 
 	const onSubmit = handleSubmit(async (data) => {
-		clearErrors('root');
-		setSuccess(null);
-
 		try {
 			await assignRoleToAppUser(data.appUserId, {
 				roleId: Number(data.roleId),
 			});
 
-			setSuccess('Rol asignado correctamente.');
+			notifySuccess('Rol asignado correctamente.');
 			reset();
 		} catch (err) {
-			setError('root', { message: (err as Error).message });
+			notifyError((err as Error).message);
 		}
 	});
 
@@ -234,9 +229,6 @@ export function AssignRoleToAppUserForm() {
 						<Form.Text className='text-muted'>Cargando…</Form.Text>
 					)}
 				</Form.Group>
-
-				{errors.root && <Alert variant='danger'>{errors.root.message}</Alert>}
-				{success && <Alert variant='success'>{success}</Alert>}
 
 				<Button
 					type='submit'
