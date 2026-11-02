@@ -1,7 +1,12 @@
 import { toast, Toaster } from 'sonner';
 
 export function AppNotifications() {
-	return <Toaster position='top-right' />;
+	return (
+		<Toaster
+			position='top-right'
+			richColors
+		/>
+	);
 }
 
 export const notifySuccess = (message: string) => toast.success(message);
