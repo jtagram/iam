@@ -45,12 +45,6 @@ describe('getRolesByApplication', () => {
 		await expect(getRolesByApplication(5)).rejects.toThrow('Forbidden');
 	});
 
-	it('throws the fallback when ok is false and msg is empty', async () => {
-		vi.mocked(fetchRolesByApplication).mockResolvedValue({ ok: false, msg: '', data: null });
-
-		await expect(getRolesByApplication(5)).rejects.toThrow('No se pudieron obtener los roles.');
-	});
-
 	it('throws an invalid-response error for a malformed envelope', async () => {
 		vi.mocked(fetchRolesByApplication).mockResolvedValue({ message: 'legacy' });
 
@@ -89,7 +83,6 @@ describe('getRolesGroupedByApplication', () => {
 		applicationDescription: 'desc',
 		roles: [{ id: 10, name: 'admin', description: 'd' }],
 	};
-	const fallback = 'No se pudieron obtener los roles de las aplicaciones.';
 
 	it('returns the list from the envelope and forwards the signal', async () => {
 		vi.mocked(fetchRolesGroupedByApplication).mockResolvedValue({
@@ -120,16 +113,6 @@ describe('getRolesGroupedByApplication', () => {
 		});
 
 		await expect(getRolesGroupedByApplication()).rejects.toThrow('Forbidden');
-	});
-
-	it('throws the fallback when ok is false and msg is empty', async () => {
-		vi.mocked(fetchRolesGroupedByApplication).mockResolvedValue({
-			ok: false,
-			msg: '',
-			data: null,
-		});
-
-		await expect(getRolesGroupedByApplication()).rejects.toThrow(fallback);
 	});
 
 	it('throws an invalid-response error for a malformed envelope', async () => {

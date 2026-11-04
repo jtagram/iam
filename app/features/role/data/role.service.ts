@@ -24,7 +24,7 @@ export async function getRolesByApplication(
 	}
 
 	if (!body.ok) {
-		throw new Error(body.msg || 'No se pudieron obtener los roles.');
+		throw new Error(body.msg);
 	}
 
 	if (!isRoleListResponse(body.data)) {
@@ -44,7 +44,7 @@ export async function getRolesGroupedByApplication(
 	}
 
 	if (!body.ok) {
-		throw new Error(body.msg || 'No se pudieron obtener los roles de las aplicaciones.');
+		throw new Error(body.msg);
 	}
 
 	if (!isApplicationRolesListResponse(body.data)) {
