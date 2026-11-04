@@ -70,9 +70,9 @@ describe('CreateApplicationForm', () => {
 	it('validates the maximum length of name and description', async () => {
 		render(<CreateApplicationForm />);
 
-		await fillForm('x'.repeat(16), 'y'.repeat(201));
+		await fillForm('x'.repeat(31), 'y'.repeat(201));
 
-		expect(await screen.findByText('Máximo 15 caracteres.')).toHaveClass('text-danger');
+		expect(await screen.findByText('Máximo 30 caracteres.')).toHaveClass('text-danger');
 		expect(screen.getByText('Máximo 200 caracteres.')).toHaveClass('text-danger');
 		expect(screen.getByRole('button', { name: 'Crear' })).toBeDisabled();
 	});

@@ -33,12 +33,6 @@ describe('getApplications', () => {
 		await expect(getApplications()).rejects.toThrow('Forbidden');
 	});
 
-	it('throws the fallback when ok is false and msg is empty', async () => {
-		vi.mocked(fetchApplications).mockResolvedValue({ ok: false, msg: '', data: null });
-
-		await expect(getApplications()).rejects.toThrow('No se pudieron obtener las aplicaciones.');
-	});
-
 	it('throws an invalid-response error for a malformed envelope', async () => {
 		vi.mocked(fetchApplications).mockResolvedValue({ message: 'legacy' });
 

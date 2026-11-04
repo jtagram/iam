@@ -48,7 +48,7 @@ export function CreateApplicationForm() {
 						aria-required='true'
 						{...register('name', {
 							required: 'Este campo es obligatorio.',
-							maxLength: { value: 15, message: 'Máximo 15 caracteres.' },
+							maxLength: { value: 30, message: 'Máximo 30 caracteres.' },
 						})}
 					/>
 					{errors.name && <Form.Text className='text-danger'>{errors.name.message}</Form.Text>}

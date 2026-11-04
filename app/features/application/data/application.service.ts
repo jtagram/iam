@@ -22,7 +22,7 @@ export async function getApplications(signal?: AbortSignal): Promise<Application
 	}
 
 	if (!body.ok) {
-		throw new Error(body.msg || 'No se pudieron obtener las aplicaciones.');
+		throw new Error(body.msg);
 	}
 
 	if (!isApplicationListResponse(body.data)) {
