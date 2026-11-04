@@ -2,7 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { notifyError } from '@/app/lib/notify';
+import { notifyError, notifySuccess } from '@/app/lib/notify';
 
 import { createAppUser } from '../../data/app-user.service';
 import { CreateAppUserForm } from '../create-app-user-form';
@@ -49,6 +49,7 @@ describe('CreateAppUserForm', () => {
 		expect(await screen.findByDisplayValue('client-123')).toHaveAttribute('readonly');
 		expect(screen.getByDisplayValue('secret-456')).toHaveAttribute('readonly');
 		expect(screen.getByText(/Usuario "svc" creado/)).toBeInTheDocument();
+		expect(notifySuccess).toHaveBeenCalledWith('Usuario "svc" creado correctamente.');
 		expect(createAppUser).toHaveBeenCalledWith({
 			name: 'svc',
 			description: 'Service user',
@@ -70,9 +71,9 @@ describe('CreateAppUserForm', () => {
 	it('validates the maximum length of name and description', async () => {
 		render(<CreateAppUserForm />);
 
-		await fillForm('x'.repeat(21), 'y'.repeat(201));
+		await fillForm('x'.repeat(31), 'y'.repeat(201));
 
-		expect(await screen.findByText('Máximo 20 caracteres.')).toHaveClass('text-danger');
+		expect(await screen.findByText('Máximo 30 caracteres.')).toHaveClass('text-danger');
 		expect(screen.getByText('Máximo 200 caracteres.')).toHaveClass('text-danger');
 		expect(screen.getByRole('button', { name: 'Crear' })).toBeDisabled();
 	});

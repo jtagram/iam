@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 
 import type { CreatedAppUser } from '@/app/features/app-user/data/app-user.dto';
 import { createAppUser } from '@/app/features/app-user/data/app-user.service';
-import { notifyError } from '@/app/lib/notify';
+import { notifyError, notifySuccess } from '@/app/lib/notify';
 
 interface CreateAppUserFormValues {
 	name: string;
@@ -32,6 +32,7 @@ export function CreateAppUserForm() {
 		try {
 			const createdAppUser = await createAppUser(data);
 			setCreated(createdAppUser);
+			notifySuccess(`Usuario "${createdAppUser.name}" creado correctamente.`);
 			reset();
 		} catch (err) {
 			notifyError((err as Error).message);
@@ -53,7 +54,7 @@ export function CreateAppUserForm() {
 						aria-required='true'
 						{...register('name', {
 							required: 'Este campo es obligatorio.',
-							maxLength: { value: 20, message: 'Máximo 20 caracteres.' },
+							maxLength: { value: 30, message: 'Máximo 30 caracteres.' },
 						})}
 					/>
 					{errors.name && <Form.Text className='text-danger'>{errors.name.message}</Form.Text>}
