@@ -63,14 +63,6 @@ describe('getInternalUsers', () => {
 		await expect(getInternalUsers()).rejects.toThrow('Forbidden');
 	});
 
-	it('throws the fallback when ok is false and msg is empty', async () => {
-		vi.mocked(fetchInternalUsers).mockResolvedValue({ ok: false, msg: '', data: null });
-
-		await expect(getInternalUsers()).rejects.toThrow(
-			'No se pudieron obtener los usuarios internos.',
-		);
-	});
-
 	it('throws an invalid-response error for a malformed envelope', async () => {
 		vi.mocked(fetchInternalUsers).mockResolvedValue({ message: 'legacy' });
 
@@ -135,18 +127,6 @@ describe('getAssignedApplicationsForInternalUser', () => {
 		await expect(getAssignedApplicationsForInternalUser(7)).rejects.toThrow('Forbidden');
 	});
 
-	it('throws the fallback when ok is false and msg is empty', async () => {
-		vi.mocked(fetchAssignedApplicationsForInternalUser).mockResolvedValue({
-			ok: false,
-			msg: '',
-			data: null,
-		});
-
-		await expect(getAssignedApplicationsForInternalUser(7)).rejects.toThrow(
-			'No se pudieron obtener las aplicaciones asignadas.',
-		);
-	});
-
 	it('throws an invalid-response error for a malformed envelope', async () => {
 		vi.mocked(fetchAssignedApplicationsForInternalUser).mockResolvedValue({ message: 'legacy' });
 
@@ -207,18 +187,6 @@ describe('getConnectionsForInternalUser', () => {
 		});
 
 		await expect(getConnectionsForInternalUser(7)).rejects.toThrow('Forbidden');
-	});
-
-	it('throws the fallback when ok is false and msg is empty', async () => {
-		vi.mocked(fetchConnectionsForInternalUser).mockResolvedValue({
-			ok: false,
-			msg: '',
-			data: null,
-		});
-
-		await expect(getConnectionsForInternalUser(7)).rejects.toThrow(
-			'No se pudieron obtener las conexiones.',
-		);
 	});
 
 	it('throws an invalid-response error for a malformed envelope', async () => {

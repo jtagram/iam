@@ -63,14 +63,6 @@ describe('getAppUsers', () => {
 		await expect(getAppUsers()).rejects.toThrow('Forbidden');
 	});
 
-	it('throws the fallback when ok is false and msg is empty', async () => {
-		vi.mocked(fetchAppUsers).mockResolvedValue({ ok: false, msg: '', data: null });
-
-		await expect(getAppUsers()).rejects.toThrow(
-			'No se pudieron obtener los usuarios de aplicación.',
-		);
-	});
-
 	it('throws an invalid-response error for a malformed envelope', async () => {
 		vi.mocked(fetchAppUsers).mockResolvedValue({ message: 'legacy' });
 
@@ -125,14 +117,6 @@ describe('getAssignedApplicationsForAppUser', () => {
 		});
 
 		await expect(getAssignedApplicationsForAppUser(7)).rejects.toThrow('Forbidden');
-	});
-
-	it('throws the fallback when ok is false and msg is empty', async () => {
-		vi.mocked(fetchAssignedApplications).mockResolvedValue({ ok: false, msg: '', data: null });
-
-		await expect(getAssignedApplicationsForAppUser(7)).rejects.toThrow(
-			'No se pudieron obtener las aplicaciones asignadas.',
-		);
 	});
 
 	it('throws an invalid-response error for a malformed envelope', async () => {
@@ -195,14 +179,6 @@ describe('getConnectionsForAppUser', () => {
 		});
 
 		await expect(getConnectionsForAppUser(7)).rejects.toThrow('Forbidden');
-	});
-
-	it('throws the fallback when ok is false and msg is empty', async () => {
-		vi.mocked(fetchConnectionsForAppUser).mockResolvedValue({ ok: false, msg: '', data: null });
-
-		await expect(getConnectionsForAppUser(7)).rejects.toThrow(
-			'No se pudieron obtener las conexiones.',
-		);
 	});
 
 	it('throws an invalid-response error for a malformed envelope', async () => {

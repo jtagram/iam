@@ -36,7 +36,7 @@ export async function getInternalUsers(signal?: AbortSignal): Promise<InternalUs
 	}
 
 	if (!body.ok) {
-		throw new Error(body.msg || 'No se pudieron obtener los usuarios internos.');
+		throw new Error(body.msg);
 	}
 
 	if (!isInternalUserListResponse(body.data)) {
@@ -57,7 +57,7 @@ export async function getAssignedApplicationsForInternalUser(
 	}
 
 	if (!body.ok) {
-		throw new Error(body.msg || 'No se pudieron obtener las aplicaciones asignadas.');
+		throw new Error(body.msg);
 	}
 
 	if (!isAssignedApplicationListResponse(body.data)) {
@@ -78,7 +78,7 @@ export async function getConnectionsForInternalUser(
 	}
 
 	if (!body.ok) {
-		throw new Error(body.msg || 'No se pudieron obtener las conexiones.');
+		throw new Error(body.msg);
 	}
 
 	if (!isApplicationConnectionListResponse(body.data)) {

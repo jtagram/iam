@@ -78,13 +78,12 @@ describe('CreateInternalUserForm', () => {
 		render(<CreateInternalUserForm />);
 
 		await fillForm({
-			name: 'x'.repeat(16),
-			lastname: 'y'.repeat(16),
+			name: 'x'.repeat(31),
+			lastname: 'y'.repeat(31),
 			email: 'z'.repeat(31),
 		});
 
-		expect(await screen.findAllByText('Máximo 15 caracteres.')).toHaveLength(2);
-		expect(screen.getByText('Máximo 30 caracteres.')).toBeInTheDocument();
+		expect(await screen.findAllByText('Máximo 30 caracteres.')).toHaveLength(3);
 		expect(screen.getByRole('button', { name: 'Crear' })).toBeDisabled();
 	});
 
@@ -102,7 +101,7 @@ describe('CreateInternalUserForm', () => {
 
 		await fillForm({ password: 'p'.repeat(73) });
 
-		expect(await screen.findByText('No puede superar los 72 caracteres.')).toBeInTheDocument();
+		expect(await screen.findByText('Máximo 72 caracteres.')).toBeInTheDocument();
 		expect(screen.getByRole('button', { name: 'Crear' })).toBeDisabled();
 	});
 });

@@ -28,11 +28,7 @@ export function CreateInternalUserForm() {
 		try {
 			const created = await createInternalUser(data);
 
-			notifySuccess(
-				`Usuario interno "${created.name ?? data.name} ${
-					created.lastname ?? data.lastname
-				}" creado correctamente.`,
-			);
+			notifySuccess(`Usuario interno "${created.name} ${created.lastname}" creado correctamente.`);
 			reset();
 		} catch (err) {
 			notifyError((err as Error).message);
@@ -54,7 +50,7 @@ export function CreateInternalUserForm() {
 						aria-required='true'
 						{...register('name', {
 							required: 'Este campo es obligatorio.',
-							maxLength: { value: 15, message: 'Máximo 15 caracteres.' },
+							maxLength: { value: 30, message: 'Máximo 30 caracteres.' },
 						})}
 					/>
 					{errors.name && <Form.Text className='text-danger'>{errors.name.message}</Form.Text>}
@@ -70,7 +66,7 @@ export function CreateInternalUserForm() {
 						aria-required='true'
 						{...register('lastname', {
 							required: 'Este campo es obligatorio.',
-							maxLength: { value: 15, message: 'Máximo 15 caracteres.' },
+							maxLength: { value: 30, message: 'Máximo 30 caracteres.' },
 						})}
 					/>
 					{errors.lastname && (
@@ -112,7 +108,7 @@ export function CreateInternalUserForm() {
 							},
 							maxLength: {
 								value: 72,
-								message: 'No puede superar los 72 caracteres.',
+								message: 'Máximo 72 caracteres.',
 							},
 						})}
 					/>

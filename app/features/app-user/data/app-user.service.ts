@@ -36,7 +36,7 @@ export async function getAppUsers(signal?: AbortSignal): Promise<AppUser[]> {
 	}
 
 	if (!body.ok) {
-		throw new Error(body.msg || 'No se pudieron obtener los usuarios de aplicación.');
+		throw new Error(body.msg);
 	}
 
 	if (!isAppUserListResponse(body.data)) {
@@ -57,7 +57,7 @@ export async function getAssignedApplicationsForAppUser(
 	}
 
 	if (!body.ok) {
-		throw new Error(body.msg || 'No se pudieron obtener las aplicaciones asignadas.');
+		throw new Error(body.msg);
 	}
 
 	if (!isAssignedApplicationListResponse(body.data)) {
@@ -78,7 +78,7 @@ export async function getConnectionsForAppUser(
 	}
 
 	if (!body.ok) {
-		throw new Error(body.msg || 'No se pudieron obtener las conexiones.');
+		throw new Error(body.msg);
 	}
 
 	if (!isApplicationConnectionListResponse(body.data)) {
