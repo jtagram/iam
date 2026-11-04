@@ -103,9 +103,9 @@ describe('CreateRoleForm', () => {
 	it('validates the maximum length of the name', async () => {
 		render(<CreateRoleForm />);
 
-		await fillForm('x'.repeat(21));
+		await fillForm('x'.repeat(31));
 
-		expect(await screen.findByText('Máximo 20 caracteres.')).toHaveClass('text-danger');
+		expect(await screen.findByText('Máximo 30 caracteres.')).toHaveClass('text-danger');
 		expect(screen.getByRole('button', { name: 'Crear' })).toBeDisabled();
 	});
 });

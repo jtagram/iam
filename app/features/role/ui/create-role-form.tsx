@@ -113,7 +113,7 @@ export function CreateRoleForm() {
 						aria-required='true'
 						{...register('name', {
 							required: 'Este campo es obligatorio.',
-							maxLength: { value: 20, message: 'Máximo 20 caracteres.' },
+							maxLength: { value: 30, message: 'Máximo 30 caracteres.' },
 						})}
 					/>
 					{errors.name && <Form.Text className='text-danger'>{errors.name.message}</Form.Text>}
