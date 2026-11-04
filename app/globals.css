@@ -1,52 +1,52 @@
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+	--background: #ffffff;
+	--foreground: #171717;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+	:root {
+		--background: #0a0a0a;
+		--foreground: #ededed;
+	}
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+	background: var(--background);
+	color: var(--foreground);
+	font-family: Arial, Helvetica, sans-serif;
 }
 
 .nav-pills .nav-link {
-  color: #000;
-  border: 1px solid #000;
+	color: #000;
+	border: 1px solid #000;
 }
 
 .nav-pills .nav-link.active {
-  background-color: #000;
-  color: #fff;
+	background-color: #000;
+	color: #fff;
 }
 
 .required-label::after {
-  content: ' *';
-  content: ' *' / '';
-  color: var(--bs-danger);
+	content: ' *';
+	content: ' *' / '';
+	color: var(--bs-danger);
 }
 
 .sidebar-accordion {
-  --bs-accordion-bg: transparent;
-  --bs-accordion-btn-bg: transparent;
-  --bs-accordion-active-bg: transparent;
-  --bs-accordion-active-color: inherit;
-  --bs-accordion-btn-padding-x: 0.5rem;
-  --bs-accordion-btn-padding-y: 0.5rem;
-  --bs-accordion-body-padding-x: 0;
-  --bs-accordion-body-padding-y: 0.25rem;
-  --bs-accordion-btn-focus-box-shadow: none;
+	--bs-accordion-bg: transparent;
+	--bs-accordion-btn-bg: transparent;
+	--bs-accordion-active-bg: transparent;
+	--bs-accordion-active-color: inherit;
+	--bs-accordion-btn-padding-x: 0.5rem;
+	--bs-accordion-btn-padding-y: 0.5rem;
+	--bs-accordion-body-padding-x: 0;
+	--bs-accordion-body-padding-y: 0.25rem;
+	--bs-accordion-btn-focus-box-shadow: none;
 }
 
 .sidebar-accordion .accordion-button {
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  color: var(--bs-secondary-color);
+	font-size: 0.75rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	color: var(--bs-secondary-color);
 }

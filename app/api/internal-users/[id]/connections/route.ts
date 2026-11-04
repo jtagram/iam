@@ -1,17 +1,7 @@
 import { NextResponse } from 'next/server';
 
-import {
-	forwardIamResponse,
-	getAuthToken,
-	invalidIdResponse,
-	isValidId,
-} from '@/app/lib/iam-proxy';
+import { getAuthToken, invalidIdResponse, isValidId } from '@/app/lib/iam-proxy';
 import { requireEnv } from '@/app/lib/require-env';
-
-interface CreateConnectionRequestBody {
-	originApplicationId?: number;
-	destinationApplicationId?: number;
-}
 
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
 	const IAM_API_URL = requireEnv('IAM_API_URL', process.env.IAM_API_URL);
@@ -32,7 +22,10 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
 		},
 	});
 
-	return forwardIamResponse(iamResponse, 'No se pudieron obtener las conexiones.');
+	return new NextResponse(iamResponse.body, {
+		status: iamResponse.status,
+		headers: { 'Content-Type': iamResponse.headers.get('Content-Type') ?? 'application/json' },
+	});
 }
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -47,24 +40,17 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 		return invalidIdResponse('usuario interno');
 	}
 
-	let body: CreateConnectionRequestBody;
-	try {
-		body = (await request.json()) as CreateConnectionRequestBody;
-	} catch {
-		return NextResponse.json({ message: 'Cuerpo de la petición inválido.' }, { status: 400 });
-	}
-
 	const iamResponse = await fetch(`${IAM_API_URL}/internal-users/${id}/connections`, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
 			Authorization: `Bearer ${token}`,
 		},
-		body: JSON.stringify({
-			originApplicationId: body.originApplicationId,
-			destinationApplicationId: body.destinationApplicationId,
-		}),
+		body: await request.text(),
 	});
 
-	return forwardIamResponse(iamResponse, 'No se pudo crear la conexión.');
+	return new NextResponse(iamResponse.body, {
+		status: iamResponse.status,
+		headers: { 'Content-Type': iamResponse.headers.get('Content-Type') ?? 'application/json' },
+	});
 }

@@ -49,7 +49,7 @@ describe('LoginPage', () => {
 
 	it('shows the server error message when login fails', async () => {
 		fetchMock.mockResolvedValue(
-			new Response(JSON.stringify({ message: 'Bad credentials' }), {
+			new Response(JSON.stringify({ ok: false, msg: 'Bad credentials', data: null }), {
 				status: 401,
 			}),
 		);

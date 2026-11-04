@@ -2,20 +2,20 @@
 
 import { Accordion, Col, Nav, Row, Tab } from 'react-bootstrap';
 
-import { AppUsersList } from '@/app/features/app-user/app-users-list';
-import { AssignApplicationForm } from '@/app/features/app-user/assign-application-form';
-import { AssignRoleToAppUserForm } from '@/app/features/app-user/assign-role-to-app-user-form';
-import { ConnectApplicationsForAppUserForm } from '@/app/features/app-user/connect-applications-for-app-user-form';
-import { CreateAppUserForm } from '@/app/features/app-user/create-app-user-form';
-import { ApplicationsList } from '@/app/features/application/applications-list';
-import { CreateApplicationForm } from '@/app/features/application/create-application-form';
-import { AssignApplicationToInternalUserForm } from '@/app/features/internal-user/assign-application-to-internal-user-form';
-import { AssignRoleToInternalUserForm } from '@/app/features/internal-user/assign-role-to-internal-user-form';
-import { ConnectApplicationsForInternalUserForm } from '@/app/features/internal-user/connect-applications-for-internal-user-form';
-import { CreateInternalUserForm } from '@/app/features/internal-user/create-internal-user-form';
-import { InternalUsersList } from '@/app/features/internal-user/internal-users-list';
-import { ApplicationRolesList } from '@/app/features/role/application-roles-list';
-import { CreateRoleForm } from '@/app/features/role/create-role-form';
+import { AppUsersList } from '@/app/features/app-user/ui/app-users-list';
+import { AssignApplicationForm } from '@/app/features/app-user/ui/assign-application-form';
+import { AssignRoleToAppUserForm } from '@/app/features/app-user/ui/assign-role-to-app-user-form';
+import { ConnectApplicationsForAppUserForm } from '@/app/features/app-user/ui/connect-applications-for-app-user-form';
+import { CreateAppUserForm } from '@/app/features/app-user/ui/create-app-user-form';
+import { ApplicationsList } from '@/app/features/application/ui/applications-list';
+import { CreateApplicationForm } from '@/app/features/application/ui/create-application-form';
+import { AssignApplicationToInternalUserForm } from '@/app/features/internal-user/ui/assign-application-to-internal-user-form';
+import { AssignRoleToInternalUserForm } from '@/app/features/internal-user/ui/assign-role-to-internal-user-form';
+import { ConnectApplicationsForInternalUserForm } from '@/app/features/internal-user/ui/connect-applications-for-internal-user-form';
+import { CreateInternalUserForm } from '@/app/features/internal-user/ui/create-internal-user-form';
+import { InternalUsersList } from '@/app/features/internal-user/ui/internal-users-list';
+import { ApplicationRolesList } from '@/app/features/role/ui/application-roles-list';
+import { CreateRoleForm } from '@/app/features/role/ui/create-role-form';
 
 export function HomeShell() {
 	return (

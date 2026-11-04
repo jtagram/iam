@@ -1,12 +1,7 @@
 import { NextResponse } from 'next/server';
 
-import { forwardIamResponse, getAuthToken } from '@/app/lib/iam-proxy';
+import { getAuthToken } from '@/app/lib/iam-proxy';
 import { requireEnv } from '@/app/lib/require-env';
-
-interface CreateApplicationRequestBody {
-	name?: string;
-	description?: string;
-}
 
 export async function GET() {
 	const IAM_API_URL = requireEnv('IAM_API_URL', process.env.IAM_API_URL);
@@ -22,7 +17,10 @@ export async function GET() {
 		},
 	});
 
-	return forwardIamResponse(iamResponse, 'No se pudieron obtener las aplicaciones.');
+	return new NextResponse(iamResponse.body, {
+		status: iamResponse.status,
+		headers: { 'Content-Type': iamResponse.headers.get('Content-Type') ?? 'application/json' },
+	});
 }
 
 export async function POST(request: Request) {
@@ -32,24 +30,17 @@ export async function POST(request: Request) {
 		return unauthorized;
 	}
 
-	let body: CreateApplicationRequestBody;
-	try {
-		body = (await request.json()) as CreateApplicationRequestBody;
-	} catch {
-		return NextResponse.json({ message: 'Cuerpo de la petición inválido.' }, { status: 400 });
-	}
-
 	const iamResponse = await fetch(`${IAM_API_URL}/applications`, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
 			Authorization: `Bearer ${token}`,
 		},
-		body: JSON.stringify({
-			name: body.name,
-			description: body.description,
-		}),
+		body: await request.text(),
 	});
 
-	return forwardIamResponse(iamResponse, 'No se pudo crear la aplicación.');
+	return new NextResponse(iamResponse.body, {
+		status: iamResponse.status,
+		headers: { 'Content-Type': iamResponse.headers.get('Content-Type') ?? 'application/json' },
+	});
 }

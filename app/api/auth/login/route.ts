@@ -1,13 +1,9 @@
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
+import { failure, readApiResult } from '@/app/lib/api-result';
 import { AUTH_COOKIE_NAME } from '@/app/lib/auth-cookie';
-import {
-	extractErrorMessage,
-	type IamErrorBody,
-	readIamBody,
-	UNREADABLE_IAM_BODY_STATUS,
-} from '@/app/lib/iam-proxy';
+import { UNREADABLE_IAM_BODY_STATUS } from '@/app/lib/iam-proxy';
 import { requireEnv } from '@/app/lib/require-env';
 
 interface LoginRequestBody {
@@ -30,12 +26,12 @@ export async function POST(request: Request) {
 	try {
 		body = (await request.json()) as LoginRequestBody;
 	} catch {
-		return NextResponse.json({ message: 'Cuerpo de la petición inválido.' }, { status: 400 });
+		return NextResponse.json(failure('Cuerpo de la petición inválido.'), { status: 400 });
 	}
 
 	const { email, password } = body;
 	if (!email || !password) {
-		return NextResponse.json({ message: 'Correo y contraseña son obligatorios.' }, { status: 400 });
+		return NextResponse.json(failure('Correo y contraseña son obligatorios.'), { status: 400 });
 	}
 
 	const iamResponse = await fetch(`${IAM_API_URL}/internal-users/login`, {
@@ -48,29 +44,28 @@ export async function POST(request: Request) {
 		body: JSON.stringify({ email, password }),
 	});
 
-	const data = await readIamBody<IamLoginSuccess & IamErrorBody>(iamResponse);
+	const result = await readApiResult<Partial<IamLoginSuccess>>(
+		iamResponse,
+		'No se pudo iniciar sesión.',
+	);
 
 	if (!iamResponse.ok) {
-		return NextResponse.json(
-			{ message: extractErrorMessage(data, 'No se pudo iniciar sesión.') },
-			{ status: iamResponse.status },
-		);
+		return NextResponse.json(failure(result.msg), { status: iamResponse.status });
 	}
 
-	if (!data?.access_token) {
-		return NextResponse.json(
-			{ message: 'No se pudo iniciar sesión.' },
-			{ status: UNREADABLE_IAM_BODY_STATUS },
-		);
+	if (!result.ok || !result.data?.access_token) {
+		return NextResponse.json(failure(result.ok ? 'No se pudo iniciar sesión.' : result.msg), {
+			status: UNREADABLE_IAM_BODY_STATUS,
+		});
 	}
 
 	const cookieStore = await cookies();
-	cookieStore.set(AUTH_COOKIE_NAME, data.access_token, {
+	cookieStore.set(AUTH_COOKIE_NAME, result.data.access_token, {
 		httpOnly: true,
 		sameSite: 'lax',
 		secure: process.env.NODE_ENV !== 'development',
 		path: '/',
 	});
 
-	return NextResponse.json({ ok: true });
+	return NextResponse.json({ ok: true, msg: 'Sesión iniciada.', data: null });
 }

@@ -52,21 +52,15 @@ describe('POST /api/auth/login', () => {
 	});
 
 	it('forwards the IAM error status and message', async () => {
-		fetchMock.mockResolvedValue(iamResponse({ message: 'Bad credentials' }, 401));
+		fetchMock.mockResolvedValue(
+			iamResponse({ ok: false, msg: 'Bad credentials', data: null }, 401),
+		);
 
 		const res = await POST(loginRequest({ email: 'a@b.com', password: 'x' }));
 
 		expect(res.status).toBe(401);
-		expect(await res.json()).toEqual({ message: 'Bad credentials' });
+		expect(await res.json()).toEqual({ ok: false, msg: 'Bad credentials', data: null });
 		expect(cookieSet).not.toHaveBeenCalled();
-	});
-
-	it('joins array messages from IAM', async () => {
-		fetchMock.mockResolvedValue(iamResponse({ message: ['one', 'two'] }, 400));
-
-		const res = await POST(loginRequest({ email: 'a@b.com', password: 'x' }));
-
-		expect(await res.json()).toEqual({ message: 'one, two' });
 	});
 
 	it("uses the fallback message with IAM's status when an error body is not JSON", async () => {
@@ -75,7 +69,7 @@ describe('POST /api/auth/login', () => {
 		const res = await POST(loginRequest({ email: 'a@b.com', password: 'x' }));
 
 		expect(res.status).toBe(503);
-		expect(await res.json()).toEqual({ message: 'No se pudo iniciar sesión.' });
+		expect(await res.json()).toEqual({ ok: false, msg: 'No se pudo iniciar sesión.', data: null });
 		expect(cookieSet).not.toHaveBeenCalled();
 	});
 
@@ -89,12 +83,14 @@ describe('POST /api/auth/login', () => {
 	});
 
 	it('sets the auth cookie and returns ok on success', async () => {
-		fetchMock.mockResolvedValue(iamResponse({ access_token: 'tok123' }));
+		fetchMock.mockResolvedValue(
+			iamResponse({ ok: true, msg: 'ok', data: { access_token: 'tok123' } }),
+		);
 
 		const res = await POST(loginRequest({ email: 'a@b.com', password: 'x' }));
 
 		expect(res.status).toBe(200);
-		expect(await res.json()).toEqual({ ok: true });
+		expect(await res.json()).toEqual({ ok: true, msg: 'Sesión iniciada.', data: null });
 		const expectedHeaders: unknown = expect.objectContaining({
 			'x-origin-application': 'iam-app',
 			'x-target-application': 'target-app',

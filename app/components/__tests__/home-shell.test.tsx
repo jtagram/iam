@@ -4,48 +4,48 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { HomeShell } from '../home-shell';
 
-vi.mock('@/app/features/application/create-application-form', () => ({
+vi.mock('@/app/features/application/ui/create-application-form', () => ({
 	CreateApplicationForm: () => <div>stub:create-application</div>,
 }));
-vi.mock('@/app/features/application/applications-list', () => ({
+vi.mock('@/app/features/application/ui/applications-list', () => ({
 	ApplicationsList: () => <div>stub:view-applications</div>,
 }));
-vi.mock('@/app/features/role/create-role-form', () => ({
+vi.mock('@/app/features/role/ui/create-role-form', () => ({
 	CreateRoleForm: () => <div>stub:create-role</div>,
 }));
-vi.mock('@/app/features/role/application-roles-list', () => ({
+vi.mock('@/app/features/role/ui/application-roles-list', () => ({
 	ApplicationRolesList: () => <div>stub:view-application-roles</div>,
 }));
-vi.mock('@/app/features/app-user/create-app-user-form', () => ({
+vi.mock('@/app/features/app-user/ui/create-app-user-form', () => ({
 	CreateAppUserForm: () => <div>stub:create-app-user</div>,
 }));
-vi.mock('@/app/features/app-user/assign-application-form', () => ({
+vi.mock('@/app/features/app-user/ui/assign-application-form', () => ({
 	AssignApplicationForm: () => <div>stub:assign-application-to-app-user</div>,
 }));
-vi.mock('@/app/features/app-user/assign-role-to-app-user-form', () => ({
+vi.mock('@/app/features/app-user/ui/assign-role-to-app-user-form', () => ({
 	AssignRoleToAppUserForm: () => <div>stub:assign-role-to-app-user</div>,
 }));
-vi.mock('@/app/features/app-user/connect-applications-for-app-user-form', () => ({
+vi.mock('@/app/features/app-user/ui/connect-applications-for-app-user-form', () => ({
 	ConnectApplicationsForAppUserForm: () => <div>stub:connect-applications-for-app-user</div>,
 }));
-vi.mock('@/app/features/app-user/app-users-list', () => ({
+vi.mock('@/app/features/app-user/ui/app-users-list', () => ({
 	AppUsersList: () => <div>stub:view-app-users</div>,
 }));
-vi.mock('@/app/features/internal-user/create-internal-user-form', () => ({
+vi.mock('@/app/features/internal-user/ui/create-internal-user-form', () => ({
 	CreateInternalUserForm: () => <div>stub:create-internal-user</div>,
 }));
-vi.mock('@/app/features/internal-user/assign-application-to-internal-user-form', () => ({
+vi.mock('@/app/features/internal-user/ui/assign-application-to-internal-user-form', () => ({
 	AssignApplicationToInternalUserForm: () => <div>stub:assign-application-to-internal-user</div>,
 }));
-vi.mock('@/app/features/internal-user/assign-role-to-internal-user-form', () => ({
+vi.mock('@/app/features/internal-user/ui/assign-role-to-internal-user-form', () => ({
 	AssignRoleToInternalUserForm: () => <div>stub:assign-role-to-internal-user</div>,
 }));
-vi.mock('@/app/features/internal-user/connect-applications-for-internal-user-form', () => ({
+vi.mock('@/app/features/internal-user/ui/connect-applications-for-internal-user-form', () => ({
 	ConnectApplicationsForInternalUserForm: () => (
 		<div>stub:connect-applications-for-internal-user</div>
 	),
 }));
-vi.mock('@/app/features/internal-user/internal-users-list', () => ({
+vi.mock('@/app/features/internal-user/ui/internal-users-list', () => ({
 	InternalUsersList: () => <div>stub:view-internal-users</div>,
 }));
 

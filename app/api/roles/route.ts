@@ -1,13 +1,8 @@
 import { NextResponse } from 'next/server';
 
-import { forwardIamResponse, getAuthToken } from '@/app/lib/iam-proxy';
+import { failure } from '@/app/lib/api-result';
+import { getAuthToken } from '@/app/lib/iam-proxy';
 import { requireEnv } from '@/app/lib/require-env';
-
-interface CreateRoleRequestBody {
-	applicationId?: number;
-	name?: string;
-	description?: string;
-}
 
 export async function GET(request: Request) {
 	const IAM_API_URL = requireEnv('IAM_API_URL', process.env.IAM_API_URL);
@@ -18,7 +13,7 @@ export async function GET(request: Request) {
 
 	const applicationId = new URL(request.url).searchParams.get('applicationId');
 	if (!applicationId) {
-		return NextResponse.json({ message: 'applicationId es obligatorio.' }, { status: 400 });
+		return NextResponse.json(failure('applicationId es obligatorio.'), { status: 400 });
 	}
 
 	const iamResponse = await fetch(
@@ -31,7 +26,10 @@ export async function GET(request: Request) {
 		},
 	);
 
-	return forwardIamResponse(iamResponse, 'No se pudieron obtener los roles.');
+	return new NextResponse(iamResponse.body, {
+		status: iamResponse.status,
+		headers: { 'Content-Type': iamResponse.headers.get('Content-Type') ?? 'application/json' },
+	});
 }
 
 export async function POST(request: Request) {
@@ -41,25 +39,17 @@ export async function POST(request: Request) {
 		return unauthorized;
 	}
 
-	let body: CreateRoleRequestBody;
-	try {
-		body = (await request.json()) as CreateRoleRequestBody;
-	} catch {
-		return NextResponse.json({ message: 'Cuerpo de la petición inválido.' }, { status: 400 });
-	}
-
 	const iamResponse = await fetch(`${IAM_API_URL}/roles`, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
 			Authorization: `Bearer ${token}`,
 		},
-		body: JSON.stringify({
-			applicationId: body.applicationId,
-			name: body.name,
-			description: body.description,
-		}),
+		body: await request.text(),
 	});
 
-	return forwardIamResponse(iamResponse, 'No se pudo crear el rol.');
+	return new NextResponse(iamResponse.body, {
+		status: iamResponse.status,
+		headers: { 'Content-Type': iamResponse.headers.get('Content-Type') ?? 'application/json' },
+	});
 }

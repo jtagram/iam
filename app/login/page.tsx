@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Alert, Button, Card, Form } from 'react-bootstrap';
 
 interface LoginErrorResponse {
-	message?: string;
+	msg?: string;
 }
 
 export default function LoginPage() {
@@ -29,7 +29,7 @@ export default function LoginPage() {
 
 			if (!response.ok) {
 				const data = (await response.json().catch(() => null)) as LoginErrorResponse | null;
-				setError(data?.message ?? 'No se pudo iniciar sesión.');
+				setError(data?.msg ?? 'No se pudo iniciar sesión.');
 				return;
 			}
 

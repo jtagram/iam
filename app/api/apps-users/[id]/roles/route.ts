@@ -1,16 +1,7 @@
 import { NextResponse } from 'next/server';
 
-import {
-	forwardIamResponse,
-	getAuthToken,
-	invalidIdResponse,
-	isValidId,
-} from '@/app/lib/iam-proxy';
+import { getAuthToken, invalidIdResponse, isValidId } from '@/app/lib/iam-proxy';
 import { requireEnv } from '@/app/lib/require-env';
-
-interface AssignRoleRequestBody {
-	roleId?: number;
-}
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
 	const IAM_API_URL = requireEnv('IAM_API_URL', process.env.IAM_API_URL);
@@ -24,21 +15,17 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 		return invalidIdResponse();
 	}
 
-	let body: AssignRoleRequestBody;
-	try {
-		body = (await request.json()) as AssignRoleRequestBody;
-	} catch {
-		return NextResponse.json({ message: 'Cuerpo de la petición inválido.' }, { status: 400 });
-	}
-
 	const iamResponse = await fetch(`${IAM_API_URL}/apps-users/${id}/roles`, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
 			Authorization: `Bearer ${token}`,
 		},
-		body: JSON.stringify({ roleId: body.roleId }),
+		body: await request.text(),
 	});
 
-	return forwardIamResponse(iamResponse, 'No se pudo asignar el rol al usuario.');
+	return new NextResponse(iamResponse.body, {
+		status: iamResponse.status,
+		headers: { 'Content-Type': iamResponse.headers.get('Content-Type') ?? 'application/json' },
+	});
 }

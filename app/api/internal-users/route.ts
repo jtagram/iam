@@ -1,14 +1,7 @@
 import { NextResponse } from 'next/server';
 
-import { forwardIamResponse, getAuthToken } from '@/app/lib/iam-proxy';
+import { getAuthToken } from '@/app/lib/iam-proxy';
 import { requireEnv } from '@/app/lib/require-env';
-
-interface CreateInternalUserRequestBody {
-	name?: string;
-	lastname?: string;
-	email?: string;
-	password?: string;
-}
 
 export async function GET() {
 	const IAM_API_URL = requireEnv('IAM_API_URL', process.env.IAM_API_URL);
@@ -24,7 +17,10 @@ export async function GET() {
 		},
 	});
 
-	return forwardIamResponse(iamResponse, 'No se pudieron obtener los usuarios internos.');
+	return new NextResponse(iamResponse.body, {
+		status: iamResponse.status,
+		headers: { 'Content-Type': iamResponse.headers.get('Content-Type') ?? 'application/json' },
+	});
 }
 
 export async function POST(request: Request) {
@@ -34,26 +30,17 @@ export async function POST(request: Request) {
 		return unauthorized;
 	}
 
-	let body: CreateInternalUserRequestBody;
-	try {
-		body = (await request.json()) as CreateInternalUserRequestBody;
-	} catch {
-		return NextResponse.json({ message: 'Cuerpo de la petición inválido.' }, { status: 400 });
-	}
-
 	const iamResponse = await fetch(`${IAM_API_URL}/internal-users`, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
 			Authorization: `Bearer ${token}`,
 		},
-		body: JSON.stringify({
-			name: body.name,
-			lastname: body.lastname,
-			email: body.email,
-			password: body.password,
-		}),
+		body: await request.text(),
 	});
 
-	return forwardIamResponse(iamResponse, 'No se pudo crear el usuario interno.');
+	return new NextResponse(iamResponse.body, {
+		status: iamResponse.status,
+		headers: { 'Content-Type': iamResponse.headers.get('Content-Type') ?? 'application/json' },
+	});
 }
