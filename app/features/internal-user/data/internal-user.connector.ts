@@ -18,6 +18,10 @@ export function fetchInternalUsers(signal?: AbortSignal): Promise<unknown> {
 	return requestJson('/api/internal-users', { signal });
 }
 
+export function fetchInternalUsersWithApplications(signal?: AbortSignal): Promise<unknown> {
+	return requestJson('/api/internal-users/with-applications', { signal });
+}
+
 export function fetchAssignedApplicationsForInternalUser(
 	internalUserId: number | string,
 	signal?: AbortSignal,

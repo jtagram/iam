@@ -30,12 +30,12 @@ describe('AppUsersList', () => {
 				id === 1
 					? [
 							{
+								id: 7,
 								applicationId: 10,
-								applicationName: 'billing',
-								applicationDescription: 'd',
+								application: { id: 10, name: 'billing', description: 'd' },
 								roles: [
-									{ id: 1, name: 'admin', description: 'd' },
-									{ id: 2, name: 'editor', description: 'd' },
+									{ id: 1, roleId: 1, role: { id: 1, name: 'admin', description: 'd' } },
+									{ id: 2, roleId: 2, role: { id: 2, name: 'editor', description: 'd' } },
 								],
 							},
 						]

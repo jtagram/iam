@@ -142,10 +142,10 @@ export function ConnectApplicationsForAppUserForm() {
 	function renderApplicationOptions() {
 		return currentAssigned?.items?.map((application) => (
 			<option
-				key={application.applicationId}
-				value={application.applicationId}
+				key={application.application.id}
+				value={application.application.id}
 			>
-				{application.applicationName}
+				{application.application.name}
 			</option>
 		));
 	}
@@ -302,8 +302,8 @@ export function ConnectApplicationsForAppUserForm() {
 								<tbody>
 									{currentConnections.items.map((connection) => (
 										<tr key={connection.id}>
-											<td>{connection.originApplicationName}</td>
-											<td>{connection.destinationApplicationName}</td>
+											<td>{connection.originApplication.name}</td>
+											<td>{connection.destinationApplication.name}</td>
 										</tr>
 									))}
 								</tbody>

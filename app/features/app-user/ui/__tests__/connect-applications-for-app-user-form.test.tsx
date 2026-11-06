@@ -16,8 +16,18 @@ vi.mock('@/app/lib/notify');
 vi.mock('../../data/app-user.service');
 
 const assigned = [
-	{ applicationId: 1, applicationName: 'billing', applicationDescription: 'd', roles: [] },
-	{ applicationId: 2, applicationName: 'crm', applicationDescription: 'd', roles: [] },
+	{
+		id: 11,
+		applicationId: 1,
+		application: { id: 1, name: 'billing', description: 'd' },
+		roles: [],
+	},
+	{
+		id: 12,
+		applicationId: 2,
+		application: { id: 2, name: 'crm', description: 'd' },
+		roles: [],
+	},
 ];
 
 beforeEach(() => {
@@ -93,9 +103,9 @@ describe('ConnectApplicationsForAppUserForm', () => {
 			{
 				id: 1,
 				originApplicationId: 1,
-				originApplicationName: 'billing',
+				originApplication: { id: 1, name: 'billing' },
 				destinationApplicationId: 2,
-				destinationApplicationName: 'crm',
+				destinationApplication: { id: 2, name: 'crm' },
 			},
 		]);
 		render(<ConnectApplicationsForAppUserForm />);

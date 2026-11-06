@@ -86,11 +86,11 @@ export function AppUsersList() {
 								<ListGroup variant='flush'>
 									{assignedApplications.map((application) => (
 										<ListGroup.Item
-											key={application.applicationId}
+											key={application.application.id}
 											className='px-0'
 										>
-											{application.applicationName}:{' '}
-											{application.roles.map((role) => role.name).join(', ')}
+											{application.application.name}:{' '}
+											{application.roles.map((assignment) => assignment.role.name).join(', ')}
 										</ListGroup.Item>
 									))}
 								</ListGroup>

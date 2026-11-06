@@ -1,8 +1,13 @@
 import type {
 	ApplicationConnection,
 	AppUser,
+	AppUserWithApplications,
+	AppUserWithConnections,
 	AssignedApplication,
+	AssignedApplicationInfo,
 	AssignedRole,
+	AssignedRoleAssignment,
+	ConnectionApplication,
 	CreatedAppUser,
 } from '@/app/features/app-user/data/app-user.dto';
 
@@ -61,20 +66,59 @@ function isAssignedRole(value: unknown): value is AssignedRole {
 	);
 }
 
+function isAssignedRoleAssignment(value: unknown): value is AssignedRoleAssignment {
+	const candidate = asRecord(value);
+	return (
+		candidate !== null &&
+		typeof candidate.id === 'number' &&
+		typeof candidate.roleId === 'number' &&
+		isAssignedRole(candidate.role)
+	);
+}
+
+function isAssignedApplicationInfo(value: unknown): value is AssignedApplicationInfo {
+	const candidate = asRecord(value);
+	return (
+		candidate !== null &&
+		typeof candidate.id === 'number' &&
+		typeof candidate.name === 'string' &&
+		typeof candidate.description === 'string'
+	);
+}
+
 export function isAssignedApplicationResponse(value: unknown): value is AssignedApplication {
 	const candidate = asRecord(value);
 	return (
 		candidate !== null &&
+		typeof candidate.id === 'number' &&
 		typeof candidate.applicationId === 'number' &&
-		typeof candidate.applicationName === 'string' &&
-		typeof candidate.applicationDescription === 'string' &&
+		isAssignedApplicationInfo(candidate.application) &&
 		Array.isArray(candidate.roles) &&
-		candidate.roles.every(isAssignedRole)
+		candidate.roles.every(isAssignedRoleAssignment)
 	);
 }
 
 export function isAssignedApplicationListResponse(value: unknown): value is AssignedApplication[] {
 	return Array.isArray(value) && value.every(isAssignedApplicationResponse);
+}
+
+export function isAppUserWithApplicationsResponse(
+	value: unknown,
+): value is AppUserWithApplications {
+	const candidate = asRecord(value);
+	return (
+		isAppUserResponse(value) &&
+		candidate !== null &&
+		Array.isArray(candidate.applications) &&
+		candidate.applications.every(isAssignedApplicationResponse)
+	);
+}
+
+function isConnectionApplication(value: unknown): value is ConnectionApplication {
+	const candidate = asRecord(value);
+	return (
+		candidate !== null && typeof candidate.id === 'number' && typeof candidate.name === 'string'
+	);
 }
 
 export function isApplicationConnectionResponse(value: unknown): value is ApplicationConnection {
@@ -83,14 +127,18 @@ export function isApplicationConnectionResponse(value: unknown): value is Applic
 		candidate !== null &&
 		typeof candidate.id === 'number' &&
 		typeof candidate.originApplicationId === 'number' &&
-		typeof candidate.originApplicationName === 'string' &&
 		typeof candidate.destinationApplicationId === 'number' &&
-		typeof candidate.destinationApplicationName === 'string'
+		isConnectionApplication(candidate.originApplication) &&
+		isConnectionApplication(candidate.destinationApplication)
 	);
 }
 
-export function isApplicationConnectionListResponse(
-	value: unknown,
-): value is ApplicationConnection[] {
-	return Array.isArray(value) && value.every(isApplicationConnectionResponse);
+export function isAppUserWithConnectionsResponse(value: unknown): value is AppUserWithConnections {
+	const candidate = asRecord(value);
+	return (
+		isAppUserResponse(value) &&
+		candidate !== null &&
+		Array.isArray(candidate.connections) &&
+		candidate.connections.every(isApplicationConnectionResponse)
+	);
 }

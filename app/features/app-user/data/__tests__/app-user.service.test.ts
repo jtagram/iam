@@ -25,18 +25,20 @@ const invalid = 'Respuesta inválida del servidor.';
 const entity = { id: 1, clienteId: 'c1', name: 'svc', description: 'desc' };
 const created = { id: 1, clienteId: 'c1', clienteSecret: 's', name: 'svc', description: 'desc' };
 const assigned = {
+	id: 5,
 	applicationId: 2,
-	applicationName: 'app',
-	applicationDescription: 'd',
-	roles: [{ id: 3, name: 'admin', description: 'r' }],
+	application: { id: 2, name: 'app', description: 'd' },
+	roles: [{ id: 8, roleId: 3, role: { id: 3, name: 'admin', description: 'r' } }],
 };
+const userWithApplications = { ...entity, applications: [assigned] };
 const connection = {
 	id: 1,
 	originApplicationId: 1,
-	originApplicationName: 'a',
 	destinationApplicationId: 2,
-	destinationApplicationName: 'b',
+	originApplication: { id: 1, name: 'a' },
+	destinationApplication: { id: 2, name: 'b' },
 };
+const userWithConnections = { ...entity, connections: [connection] };
 
 afterEach(() => {
 	vi.resetAllMocks();
@@ -51,7 +53,7 @@ describe('getAppUsers', () => {
 		expect(fetchAppUsers).toHaveBeenCalledWith(controller.signal);
 	});
 
-	it('accepts an empty list', async () => {
+	it('accepts a user without applications', async () => {
 		vi.mocked(fetchAppUsers).mockResolvedValue({ ok: true, msg: '', data: [] });
 
 		expect(await getAppUsers()).toEqual([]);
@@ -91,11 +93,11 @@ describe('getAppUsers', () => {
 });
 
 describe('getAssignedApplicationsForAppUser', () => {
-	it('returns the list from the envelope and forwards the arguments', async () => {
+	it('returns the applications of the user in the envelope and forwards the arguments', async () => {
 		vi.mocked(fetchAssignedApplications).mockResolvedValue({
 			ok: true,
 			msg: 'Listado',
-			data: [assigned],
+			data: userWithApplications,
 		});
 		const controller = new AbortController();
 
@@ -103,8 +105,12 @@ describe('getAssignedApplicationsForAppUser', () => {
 		expect(fetchAssignedApplications).toHaveBeenCalledWith(7, controller.signal);
 	});
 
-	it('accepts an empty list', async () => {
-		vi.mocked(fetchAssignedApplications).mockResolvedValue({ ok: true, msg: '', data: [] });
+	it('accepts a user without applications', async () => {
+		vi.mocked(fetchAssignedApplications).mockResolvedValue({
+			ok: true,
+			msg: '',
+			data: { ...entity, applications: [] },
+		});
 
 		expect(await getAssignedApplicationsForAppUser(7)).toEqual([]);
 	});
@@ -125,12 +131,24 @@ describe('getAssignedApplicationsForAppUser', () => {
 		await expect(getAssignedApplicationsForAppUser(7)).rejects.toThrow(invalid);
 	});
 
-	it('throws an invalid-response error when an item has the wrong shape', async () => {
+	it('throws an invalid-response error when an assignment has the wrong shape', async () => {
 		vi.mocked(fetchAssignedApplications).mockResolvedValue({
 			ok: true,
 			msg: '',
-			data: [assigned, { id: 'x' }],
+			data: { ...entity, applications: [assigned, { id: 'x' }] },
 		});
+
+		await expect(getAssignedApplicationsForAppUser(7)).rejects.toThrow(invalid);
+	});
+
+	it('throws an invalid-response error when data is the bare list of the old contract', async () => {
+		vi.mocked(fetchAssignedApplications).mockResolvedValue({ ok: true, msg: '', data: [assigned] });
+
+		await expect(getAssignedApplicationsForAppUser(7)).rejects.toThrow(invalid);
+	});
+
+	it('throws an invalid-response error when the user has no applications array', async () => {
+		vi.mocked(fetchAssignedApplications).mockResolvedValue({ ok: true, msg: '', data: entity });
 
 		await expect(getAssignedApplicationsForAppUser(7)).rejects.toThrow(invalid);
 	});
@@ -157,7 +175,7 @@ describe('getConnectionsForAppUser', () => {
 		vi.mocked(fetchConnectionsForAppUser).mockResolvedValue({
 			ok: true,
 			msg: 'Listado',
-			data: [connection],
+			data: userWithConnections,
 		});
 		const controller = new AbortController();
 
@@ -165,8 +183,12 @@ describe('getConnectionsForAppUser', () => {
 		expect(fetchConnectionsForAppUser).toHaveBeenCalledWith(7, controller.signal);
 	});
 
-	it('accepts an empty list', async () => {
-		vi.mocked(fetchConnectionsForAppUser).mockResolvedValue({ ok: true, msg: '', data: [] });
+	it('accepts a user without applications', async () => {
+		vi.mocked(fetchConnectionsForAppUser).mockResolvedValue({
+			ok: true,
+			msg: '',
+			data: { ...entity, connections: [] },
+		});
 
 		expect(await getConnectionsForAppUser(7)).toEqual([]);
 	});
@@ -191,7 +213,7 @@ describe('getConnectionsForAppUser', () => {
 		vi.mocked(fetchConnectionsForAppUser).mockResolvedValue({
 			ok: true,
 			msg: '',
-			data: [connection, { id: 'x' }],
+			data: { ...entity, connections: [connection, { id: 'x' }] },
 		});
 
 		await expect(getConnectionsForAppUser(7)).rejects.toThrow(invalid);
@@ -237,7 +259,11 @@ describe('createAppUser', () => {
 	});
 
 	it('throws an invalid-response error when data has the wrong shape', async () => {
-		vi.mocked(postAppUser).mockResolvedValue({ ok: true, msg: '', data: { id: 1 } });
+		vi.mocked(postAppUser).mockResolvedValue({
+			ok: true,
+			msg: '',
+			data: { id: 1 },
+		});
 
 		await expect(createAppUser(payload)).rejects.toThrow(invalid);
 	});
@@ -257,7 +283,7 @@ describe('createConnectionForAppUser', () => {
 		vi.mocked(postConnectionForAppUser).mockResolvedValue({
 			ok: true,
 			msg: 'Hecho',
-			data: connection,
+			data: userWithConnections,
 		});
 
 		expect(await createConnectionForAppUser(7, payload)).toBeUndefined();
@@ -281,7 +307,11 @@ describe('createConnectionForAppUser', () => {
 	});
 
 	it('throws an invalid-response error when data has the wrong shape', async () => {
-		vi.mocked(postConnectionForAppUser).mockResolvedValue({ ok: true, msg: '', data: { id: 1 } });
+		vi.mocked(postConnectionForAppUser).mockResolvedValue({
+			ok: true,
+			msg: '',
+			data: { id: 1 },
+		});
 
 		await expect(createConnectionForAppUser(7, payload)).rejects.toThrow(invalid);
 	});

@@ -4,6 +4,7 @@ import {
 	fetchAssignedApplicationsForInternalUser,
 	fetchConnectionsForInternalUser,
 	fetchInternalUsers,
+	fetchInternalUsersWithApplications,
 	postAssignApplicationToInternalUser,
 	postAssignRoleToInternalUser,
 	postConnectionForInternalUser,
@@ -17,6 +18,7 @@ import {
 	getAssignedApplicationsForInternalUser,
 	getConnectionsForInternalUser,
 	getInternalUsers,
+	getInternalUsersWithApplications,
 } from '../internal-user.service';
 
 vi.mock('../internal-user.connector');
@@ -25,18 +27,20 @@ const invalid = 'Respuesta inválida del servidor.';
 const entity = { id: 1, name: 'Ana', lastname: 'Pérez', email: 'ana@x.com' };
 const created = { id: 1, name: 'Ana', lastname: 'Pérez', email: 'ana@x.com' };
 const assigned = {
+	id: 5,
 	applicationId: 2,
-	applicationName: 'app',
-	applicationDescription: 'd',
-	roles: [{ id: 3, name: 'admin', description: 'r' }],
+	application: { id: 2, name: 'app', description: 'd' },
+	roles: [{ id: 8, roleId: 3, role: { id: 3, name: 'admin', description: 'r' } }],
 };
+const userWithApplications = { ...entity, applications: [assigned] };
 const connection = {
 	id: 1,
 	originApplicationId: 1,
-	originApplicationName: 'a',
 	destinationApplicationId: 2,
-	destinationApplicationName: 'b',
+	originApplication: { id: 1, name: 'a' },
+	destinationApplication: { id: 2, name: 'b' },
 };
+const userWithConnections = { ...entity, connections: [connection] };
 
 afterEach(() => {
 	vi.resetAllMocks();
@@ -51,7 +55,7 @@ describe('getInternalUsers', () => {
 		expect(fetchInternalUsers).toHaveBeenCalledWith(controller.signal);
 	});
 
-	it('accepts an empty list', async () => {
+	it('accepts a user without applications', async () => {
 		vi.mocked(fetchInternalUsers).mockResolvedValue({ ok: true, msg: '', data: [] });
 
 		expect(await getInternalUsers()).toEqual([]);
@@ -94,12 +98,80 @@ describe('getInternalUsers', () => {
 	});
 });
 
+describe('getInternalUsersWithApplications', () => {
+	const withApplications = { ...entity, applications: [assigned] };
+
+	it('returns the list from the envelope and forwards the signal', async () => {
+		vi.mocked(fetchInternalUsersWithApplications).mockResolvedValue({
+			ok: true,
+			msg: 'Listado',
+			data: [withApplications],
+		});
+		const controller = new AbortController();
+
+		expect(await getInternalUsersWithApplications(controller.signal)).toEqual([withApplications]);
+		expect(fetchInternalUsersWithApplications).toHaveBeenCalledWith(controller.signal);
+	});
+
+	it('accepts a user without applications', async () => {
+		vi.mocked(fetchInternalUsersWithApplications).mockResolvedValue({
+			ok: true,
+			msg: '',
+			data: [],
+		});
+
+		expect(await getInternalUsersWithApplications()).toEqual([]);
+	});
+
+	it('throws the envelope msg when ok is false', async () => {
+		vi.mocked(fetchInternalUsersWithApplications).mockResolvedValue({
+			ok: false,
+			msg: 'Forbidden',
+			data: null,
+		});
+
+		await expect(getInternalUsersWithApplications()).rejects.toThrow('Forbidden');
+	});
+
+	it('throws an invalid-response error for a malformed envelope', async () => {
+		vi.mocked(fetchInternalUsersWithApplications).mockResolvedValue({ message: 'legacy' });
+
+		await expect(getInternalUsersWithApplications()).rejects.toThrow(invalid);
+	});
+
+	it('throws an invalid-response error when an item has the wrong shape', async () => {
+		vi.mocked(fetchInternalUsersWithApplications).mockResolvedValue({
+			ok: true,
+			msg: '',
+			data: [withApplications, entity],
+		});
+
+		await expect(getInternalUsersWithApplications()).rejects.toThrow(invalid);
+	});
+
+	it('propagates errors thrown by the connector', async () => {
+		const error = new Error('No se pudo conectar con el servidor.');
+		vi.mocked(fetchInternalUsersWithApplications).mockRejectedValue(error);
+
+		await expect(getInternalUsersWithApplications()).rejects.toBe(error);
+	});
+
+	it('lets an AbortError pass through untouched', async () => {
+		const abortError = new DOMException('aborted', 'AbortError');
+		vi.mocked(fetchInternalUsersWithApplications).mockRejectedValue(abortError);
+
+		await expect(getInternalUsersWithApplications(new AbortController().signal)).rejects.toBe(
+			abortError,
+		);
+	});
+});
+
 describe('getAssignedApplicationsForInternalUser', () => {
-	it('returns the list from the envelope and forwards the arguments', async () => {
+	it('returns the applications of the user in the envelope and forwards the arguments', async () => {
 		vi.mocked(fetchAssignedApplicationsForInternalUser).mockResolvedValue({
 			ok: true,
 			msg: 'Listado',
-			data: [assigned],
+			data: userWithApplications,
 		});
 		const controller = new AbortController();
 
@@ -107,11 +179,11 @@ describe('getAssignedApplicationsForInternalUser', () => {
 		expect(fetchAssignedApplicationsForInternalUser).toHaveBeenCalledWith(7, controller.signal);
 	});
 
-	it('accepts an empty list', async () => {
+	it('accepts a user without applications', async () => {
 		vi.mocked(fetchAssignedApplicationsForInternalUser).mockResolvedValue({
 			ok: true,
 			msg: '',
-			data: [],
+			data: { ...entity, applications: [] },
 		});
 
 		expect(await getAssignedApplicationsForInternalUser(7)).toEqual([]);
@@ -133,11 +205,31 @@ describe('getAssignedApplicationsForInternalUser', () => {
 		await expect(getAssignedApplicationsForInternalUser(7)).rejects.toThrow(invalid);
 	});
 
-	it('throws an invalid-response error when an item has the wrong shape', async () => {
+	it('throws an invalid-response error when an assignment has the wrong shape', async () => {
 		vi.mocked(fetchAssignedApplicationsForInternalUser).mockResolvedValue({
 			ok: true,
 			msg: '',
-			data: [assigned, { id: 'x' }],
+			data: { ...entity, applications: [assigned, { id: 'x' }] },
+		});
+
+		await expect(getAssignedApplicationsForInternalUser(7)).rejects.toThrow(invalid);
+	});
+
+	it('throws an invalid-response error when data is the bare list of the old contract', async () => {
+		vi.mocked(fetchAssignedApplicationsForInternalUser).mockResolvedValue({
+			ok: true,
+			msg: '',
+			data: [assigned],
+		});
+
+		await expect(getAssignedApplicationsForInternalUser(7)).rejects.toThrow(invalid);
+	});
+
+	it('throws an invalid-response error when the user has no applications array', async () => {
+		vi.mocked(fetchAssignedApplicationsForInternalUser).mockResolvedValue({
+			ok: true,
+			msg: '',
+			data: entity,
 		});
 
 		await expect(getAssignedApplicationsForInternalUser(7)).rejects.toThrow(invalid);
@@ -165,7 +257,7 @@ describe('getConnectionsForInternalUser', () => {
 		vi.mocked(fetchConnectionsForInternalUser).mockResolvedValue({
 			ok: true,
 			msg: 'Listado',
-			data: [connection],
+			data: userWithConnections,
 		});
 		const controller = new AbortController();
 
@@ -173,8 +265,12 @@ describe('getConnectionsForInternalUser', () => {
 		expect(fetchConnectionsForInternalUser).toHaveBeenCalledWith(7, controller.signal);
 	});
 
-	it('accepts an empty list', async () => {
-		vi.mocked(fetchConnectionsForInternalUser).mockResolvedValue({ ok: true, msg: '', data: [] });
+	it('accepts a user without applications', async () => {
+		vi.mocked(fetchConnectionsForInternalUser).mockResolvedValue({
+			ok: true,
+			msg: '',
+			data: { ...entity, connections: [] },
+		});
 
 		expect(await getConnectionsForInternalUser(7)).toEqual([]);
 	});
@@ -199,7 +295,7 @@ describe('getConnectionsForInternalUser', () => {
 		vi.mocked(fetchConnectionsForInternalUser).mockResolvedValue({
 			ok: true,
 			msg: '',
-			data: [connection, { id: 'x' }],
+			data: { ...entity, connections: [connection, { id: 'x' }] },
 		});
 
 		await expect(getConnectionsForInternalUser(7)).rejects.toThrow(invalid);
@@ -245,7 +341,11 @@ describe('createInternalUser', () => {
 	});
 
 	it('throws an invalid-response error when data has the wrong shape', async () => {
-		vi.mocked(postInternalUser).mockResolvedValue({ ok: true, msg: '', data: { id: 1 } });
+		vi.mocked(postInternalUser).mockResolvedValue({
+			ok: true,
+			msg: '',
+			data: { id: 1 },
+		});
 
 		await expect(createInternalUser(payload)).rejects.toThrow(invalid);
 	});
@@ -265,7 +365,7 @@ describe('createConnectionForInternalUser', () => {
 		vi.mocked(postConnectionForInternalUser).mockResolvedValue({
 			ok: true,
 			msg: 'Hecho',
-			data: connection,
+			data: userWithConnections,
 		});
 
 		expect(await createConnectionForInternalUser(7, payload)).toBeUndefined();

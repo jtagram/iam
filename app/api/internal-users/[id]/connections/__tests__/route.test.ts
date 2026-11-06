@@ -61,7 +61,7 @@ describe('GET /api/internal-users/[id]/connections', () => {
 	);
 
 	it('requests IAM with the bearer token and returns its response as is', async () => {
-		const body = { ok: true, msg: 'Listado', data: [{ id: 1 }] };
+		const body = { ok: true, msg: 'Listado', data: { id: 1, connections: [{ id: 1 }] } };
 		fetchMock.mockResolvedValue(iamResponse(body));
 
 		const res = await GET(jsonRequest('http://localhost/api/x', 'GET'), routeParams('7'));
@@ -153,7 +153,7 @@ describe('POST /api/internal-users/[id]/connections', () => {
 	);
 
 	it('forwards the request body untouched and returns the IAM response as is', async () => {
-		const body = { ok: true, msg: 'Creada', data: { id: 9 } };
+		const body = { ok: true, msg: 'Creada', data: { id: 1, connections: [{ id: 9 }] } };
 		fetchMock.mockResolvedValue(iamResponse(body, 201));
 
 		const res = await POST(

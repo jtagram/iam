@@ -4,6 +4,7 @@ import {
 	fetchAssignedApplicationsForInternalUser,
 	fetchConnectionsForInternalUser,
 	fetchInternalUsers,
+	fetchInternalUsersWithApplications,
 	postAssignApplicationToInternalUser,
 	postAssignRoleToInternalUser,
 	postConnectionForInternalUser,
@@ -23,6 +24,26 @@ beforeEach(() => {
 afterEach(() => {
 	vi.unstubAllGlobals();
 	vi.clearAllMocks();
+});
+
+describe('fetchInternalUsersWithApplications', () => {
+	it('requests /api/internal-users/with-applications with the abort signal and returns the body unchanged', async () => {
+		const body = { ok: true, msg: 'Listado', data: [] };
+		fetchMock.mockResolvedValue(jsonResponse(body));
+		const controller = new AbortController();
+
+		expect(await fetchInternalUsersWithApplications(controller.signal)).toEqual(body);
+		expect(fetchMock).toHaveBeenCalledWith('/api/internal-users/with-applications', {
+			signal: controller.signal,
+		});
+	});
+
+	it('returns the envelope of an HTTP error response', async () => {
+		const body = { ok: false, msg: 'boom', data: null };
+		fetchMock.mockResolvedValue(jsonResponse(body, 500));
+
+		expect(await fetchInternalUsersWithApplications()).toEqual(body);
+	});
 });
 
 describe('fetchInternalUsers', () => {

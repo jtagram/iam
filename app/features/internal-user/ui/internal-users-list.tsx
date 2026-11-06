@@ -3,22 +3,11 @@
 import { useEffect, useState } from 'react';
 import { ListGroup } from 'react-bootstrap';
 
-import type {
-	AssignedApplication,
-	InternalUser,
-} from '@/app/features/internal-user/data/internal-user.dto';
-import {
-	getAssignedApplicationsForInternalUser,
-	getInternalUsers,
-} from '@/app/features/internal-user/data/internal-user.service';
-
-interface InternalUserRow {
-	internalUser: InternalUser;
-	assignedApplications: AssignedApplication[];
-}
+import type { InternalUserWithApplications } from '@/app/features/internal-user/data/internal-user.dto';
+import { getInternalUsersWithApplications } from '@/app/features/internal-user/data/internal-user.service';
 
 export function InternalUsersList() {
-	const [rows, setRows] = useState<InternalUserRow[] | null>(null);
+	const [internalUsers, setInternalUsers] = useState<InternalUserWithApplications[] | null>(null);
 	const [error, setError] = useState<string | null>(null);
 
 	useEffect(() => {
@@ -26,19 +15,7 @@ export function InternalUsersList() {
 
 		async function loadInternalUsers() {
 			try {
-				const internalUsers = await getInternalUsers(controller.signal);
-
-				const loadedRows = await Promise.all(
-					internalUsers.map(async (internalUser) => ({
-						internalUser,
-						assignedApplications: await getAssignedApplicationsForInternalUser(
-							internalUser.id,
-							controller.signal,
-						),
-					})),
-				);
-
-				setRows(loadedRows);
+				setInternalUsers(await getInternalUsersWithApplications(controller.signal));
 			} catch (err) {
 				if (controller.signal.aborted) return;
 				setError((err as Error).message);
@@ -64,38 +41,38 @@ export function InternalUsersList() {
 				</p>
 			)}
 
-			{!error && rows === null && (
+			{!error && internalUsers === null && (
 				<p className='text-sm text-zinc-500 dark:text-zinc-400'>Cargando…</p>
 			)}
 
-			{!error && rows !== null && rows.length === 0 && (
+			{!error && internalUsers !== null && internalUsers.length === 0 && (
 				<p className='text-sm text-zinc-500 dark:text-zinc-400'>
 					No hay usuarios internos creados todavía.
 				</p>
 			)}
 
-			{!error && rows !== null && rows.length > 0 && (
+			{!error && internalUsers !== null && internalUsers.length > 0 && (
 				<ListGroup>
-					{rows.map(({ internalUser, assignedApplications }) => (
+					{internalUsers.map((internalUser) => (
 						<ListGroup.Item key={internalUser.id}>
 							<div className='fw-medium'>
 								{internalUser.name} {internalUser.lastname}
 							</div>
 							<div className='text-muted small mb-2'>{internalUser.email}</div>
 
-							{assignedApplications.length === 0 && (
+							{internalUser.applications.length === 0 && (
 								<div className='text-muted small'>Sin aplicaciones asignadas.</div>
 							)}
 
-							{assignedApplications.length > 0 && (
+							{internalUser.applications.length > 0 && (
 								<ListGroup variant='flush'>
-									{assignedApplications.map((application) => (
+									{internalUser.applications.map((application) => (
 										<ListGroup.Item
-											key={application.applicationId}
+											key={application.application.id}
 											className='px-0'
 										>
-											{application.applicationName}:{' '}
-											{application.roles.map((role) => role.name).join(', ')}
+											{application.application.name}:{' '}
+											{application.roles.map((assignment) => assignment.role.name).join(', ')}
 										</ListGroup.Item>
 									))}
 								</ListGroup>

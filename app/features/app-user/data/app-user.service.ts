@@ -18,10 +18,9 @@ import type {
 	CreatedAppUser,
 } from '@/app/features/app-user/data/app-user.dto';
 import {
-	isApplicationConnectionListResponse,
-	isApplicationConnectionResponse,
 	isAppUserListResponse,
-	isAssignedApplicationListResponse,
+	isAppUserWithApplicationsResponse,
+	isAppUserWithConnectionsResponse,
 	isCreatedAppUserResponse,
 	isResponseBody,
 } from '@/app/features/app-user/data/app-user.validation';
@@ -60,11 +59,12 @@ export async function getAssignedApplicationsForAppUser(
 		throw new Error(body.msg);
 	}
 
-	if (!isAssignedApplicationListResponse(body.data)) {
+	// The endpoint answers with the user and its `applications`; the callers only need the rows.
+	if (!isAppUserWithApplicationsResponse(body.data)) {
 		throw new Error(INVALID_RESPONSE_MESSAGE);
 	}
 
-	return body.data;
+	return body.data.applications;
 }
 
 export async function getConnectionsForAppUser(
@@ -81,11 +81,11 @@ export async function getConnectionsForAppUser(
 		throw new Error(body.msg);
 	}
 
-	if (!isApplicationConnectionListResponse(body.data)) {
+	if (!isAppUserWithConnectionsResponse(body.data)) {
 		throw new Error(INVALID_RESPONSE_MESSAGE);
 	}
 
-	return body.data;
+	return body.data.connections;
 }
 
 export async function createConnectionForAppUser(
@@ -102,7 +102,7 @@ export async function createConnectionForAppUser(
 		throw new Error(body.msg);
 	}
 
-	if (!isApplicationConnectionResponse(body.data)) {
+	if (!isAppUserWithConnectionsResponse(body.data)) {
 		throw new Error(INVALID_RESPONSE_MESSAGE);
 	}
 }

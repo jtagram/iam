@@ -2,6 +2,7 @@ import {
 	fetchAssignedApplicationsForInternalUser,
 	fetchConnectionsForInternalUser,
 	fetchInternalUsers,
+	fetchInternalUsersWithApplications,
 	postAssignApplicationToInternalUser,
 	postAssignRoleToInternalUser,
 	postConnectionForInternalUser,
@@ -16,13 +17,14 @@ import type {
 	CreatedInternalUser,
 	CreateInternalUserPayload,
 	InternalUser,
+	InternalUserWithApplications,
 } from '@/app/features/internal-user/data/internal-user.dto';
 import {
-	isApplicationConnectionListResponse,
-	isApplicationConnectionResponse,
-	isAssignedApplicationListResponse,
 	isInternalUserListResponse,
 	isInternalUserResponse,
+	isInternalUserWithApplicationsListResponse,
+	isInternalUserWithApplicationsResponse,
+	isInternalUserWithConnectionsResponse,
 	isResponseBody,
 } from '@/app/features/internal-user/data/internal-user.validation';
 
@@ -46,6 +48,26 @@ export async function getInternalUsers(signal?: AbortSignal): Promise<InternalUs
 	return body.data;
 }
 
+export async function getInternalUsersWithApplications(
+	signal?: AbortSignal,
+): Promise<InternalUserWithApplications[]> {
+	const body = await fetchInternalUsersWithApplications(signal);
+
+	if (!isResponseBody(body)) {
+		throw new Error(INVALID_RESPONSE_MESSAGE);
+	}
+
+	if (!body.ok) {
+		throw new Error(body.msg);
+	}
+
+	if (!isInternalUserWithApplicationsListResponse(body.data)) {
+		throw new Error(INVALID_RESPONSE_MESSAGE);
+	}
+
+	return body.data;
+}
+
 export async function getAssignedApplicationsForInternalUser(
 	internalUserId: number | string,
 	signal?: AbortSignal,
@@ -60,11 +82,12 @@ export async function getAssignedApplicationsForInternalUser(
 		throw new Error(body.msg);
 	}
 
-	if (!isAssignedApplicationListResponse(body.data)) {
+	// The endpoint answers with the user and its `applications`; the callers only need the rows.
+	if (!isInternalUserWithApplicationsResponse(body.data)) {
 		throw new Error(INVALID_RESPONSE_MESSAGE);
 	}
 
-	return body.data;
+	return body.data.applications;
 }
 
 export async function getConnectionsForInternalUser(
@@ -81,11 +104,11 @@ export async function getConnectionsForInternalUser(
 		throw new Error(body.msg);
 	}
 
-	if (!isApplicationConnectionListResponse(body.data)) {
+	if (!isInternalUserWithConnectionsResponse(body.data)) {
 		throw new Error(INVALID_RESPONSE_MESSAGE);
 	}
 
-	return body.data;
+	return body.data.connections;
 }
 
 export async function createConnectionForInternalUser(
@@ -102,7 +125,7 @@ export async function createConnectionForInternalUser(
 		throw new Error(body.msg);
 	}
 
-	if (!isApplicationConnectionResponse(body.data)) {
+	if (!isInternalUserWithConnectionsResponse(body.data)) {
 		throw new Error(INVALID_RESPONSE_MESSAGE);
 	}
 }

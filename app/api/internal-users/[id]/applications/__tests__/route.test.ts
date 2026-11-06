@@ -61,7 +61,7 @@ describe('GET /api/internal-users/[id]/applications', () => {
 	);
 
 	it('requests IAM with the bearer token and returns its response as is', async () => {
-		const body = { ok: true, msg: 'Listado', data: [{ id: 1 }] };
+		const body = { ok: true, msg: 'Listado', data: { id: 1, applications: [] } };
 		fetchMock.mockResolvedValue(iamResponse(body));
 
 		const res = await GET(jsonRequest('http://localhost/api/x', 'GET'), routeParams('7'));
